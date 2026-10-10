@@ -1,12 +1,5 @@
 {
   "name": "YAS Order & Delivery",
   "version": 2,
-  "buildCommand": "npm install",
-  "public": true,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "public": true
 }
