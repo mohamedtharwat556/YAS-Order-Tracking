@@ -1,0 +1,24 @@
+{
+  "name": "YAS Order & Delivery",
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "driver.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "track.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "$1"
+    }
+  ]
+}
