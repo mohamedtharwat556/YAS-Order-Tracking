@@ -17,9 +17,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files - assets and public
-app.use(express.static(path.join(__dirname, 'assets')));
-app.use(express.static(__dirname));
+// Serve static files from root directory
+app.use(express.static(__dirname, {
+  etag: false,
+  maxAge: '1h',
+  setHeaders: (res, path) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+  }
+}));
 
 // Initialize Supabase
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
