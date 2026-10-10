@@ -40,6 +40,56 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', supabase: !!supabase });
 });
 
+// Orders API
+app.get('/api/orders', async (req, res) => {
+  if (!supabase) {
+    return res.json({ message: 'Using localStorage - no backend yet' });
+  }
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/orders', async (req, res) => {
+  if (!supabase) {
+    return res.status(501).json({ error: 'Backend not configured' });
+  }
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([req.body])
+      .select();
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/orders/:id', async (req, res) => {
+  if (!supabase) {
+    return res.status(501).json({ error: 'Backend not configured' });
+  }
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .update(req.body)
+      .eq('id', req.params.id)
+      .select();
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Serve HTML files
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
