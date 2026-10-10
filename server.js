@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import fs from 'fs';
 
 dotenv.config();
 
@@ -18,39 +17,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Debug: Log directory structure
-console.log('📂 Working directory:', __dirname);
-console.log('📂 Assets path exists:', fs.existsSync(path.join(__dirname, 'assets')));
-console.log('📂 CSS file exists:', fs.existsSync(path.join(__dirname, 'assets/css/style.css')));
-
-// Serve static files with proper middleware ordering
-// Priority 1: Explicit static routes for /assets
-app.get('/assets/:type/:file', (req, res, next) => {
-  const { type, file } = req.params;
-  const filePath = path.join(__dirname, 'assets', type, file);
-  
-  // Security: prevent directory traversal
-  if (!filePath.startsWith(path.join(__dirname, 'assets'))) {
-    return res.status(403).send('Forbidden');
-  }
-  
-  // Serve with appropriate content type
-  if (type === 'css') res.setHeader('Content-Type', 'text/css');
-  if (type === 'js') res.setHeader('Content-Type', 'application/javascript');
-  
-  res.sendFile(filePath, (err) => {
-    if (err) {
-      console.error(`❌ Asset not found: ${filePath}`);
-      res.status(404).send('Not found');
-    }
-  });
-});
-
-// Priority 2: General static files from root
-app.use(express.static(__dirname, {
-  maxAge: '1h',
-  etag: false
-}));
+// Serve static files - try public first (for Vercel), then assets
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'assets')));
+app.use(express.static(__dirname));
 
 // Initialize Supabase
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
