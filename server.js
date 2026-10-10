@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -17,13 +18,22 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from root directory
-app.use(express.static(__dirname, {
-  etag: false,
+// Debug: Log directory structure
+console.log('📂 Working directory:', __dirname);
+console.log('📂 Assets path exists:', fs.existsSync(path.join(__dirname, 'assets')));
+console.log('📂 CSS file exists:', fs.existsSync(path.join(__dirname, 'assets/css/style.css')));
+
+// Serve static files with proper middleware ordering
+// Priority 1: Explicit static routes
+app.use('/assets', express.static(path.join(__dirname, 'assets'), {
   maxAge: '1h',
-  setHeaders: (res, path) => {
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-  }
+  etag: false
+}));
+
+// Priority 2: Root static files
+app.use(express.static(__dirname, {
+  maxAge: '1h',
+  etag: false
 }));
 
 // Initialize Supabase
