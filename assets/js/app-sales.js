@@ -1,5 +1,9 @@
 (() => {
   const STORE = 'yas_orders_frontend_v1';
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api/orders'
+    : 'https://yas-backend.vercel.app/api/orders';
+  
   const today = new Date();
   const fmtDate = d => new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
   const fmtTime = d => new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
