@@ -1,20 +1,12 @@
 {
   "name": "YAS Order & Delivery",
   "version": 2,
-  "builds": [
+  "buildCommand": "npm install",
+  "public": true,
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server.js"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
