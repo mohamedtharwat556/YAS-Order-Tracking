@@ -57,11 +57,16 @@
     const form=e.currentTarget;
     if(!form.reportValidity())return;
     const data=Object.fromEntries(new FormData(form).entries());
-    const day=new Date(data.receivedAt||Date.now()).toISOString().slice(0,10).replaceAll('-','');
-    const count=String(orders.filter(o=>o.id&&o.id.startsWith('YAS-'+day)).length+1).padStart(3,'0');
+
+    // Generate simple order ID: YAS-1, YAS-2, etc.
+    const maxOrderNum = orders.reduce((max, o) => {
+      const num = parseInt(o.id.replace('YAS-', '')) || 0;
+      return num > max ? num : max;
+    }, 0);
+    const orderId = `YAS-${maxOrderNum + 1}`;
 
     const o={
-      id:`YAS-${day}-${count}`,
+      id: orderId,
       customer: data.customer,
       phone: data.phone,
       address: data.address,
