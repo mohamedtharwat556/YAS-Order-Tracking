@@ -33,10 +33,11 @@
     $('#driver-pending').textContent = list.filter(o => ['تم طلبه', 'تم الشحن', 'خرج للتوصيل'].includes(o.status)).length;
     $('#driver-completed').textContent = list.filter(o => o.status === 'تم التوصيل').length;
     
-    // Update photo select dropdown
+    // Update dropdowns
     $('#photo-order-select').innerHTML='<option value="">اختر طلباً</option>'+list.map(o=>`<option value="${esc(o.id)}">${esc(o.id)} - ${esc(o.customer)}</option>`).join('');
+    $('#signature-order-select').innerHTML='<option value="">اختر طلباً</option>'+list.map(o=>`<option value="${esc(o.id)}">${esc(o.id)} - ${esc(o.customer)}</option>`).join('');
     
-    $('#driver-orders').innerHTML=list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div><div class="driver-actions"><select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button>${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryPhoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryPhoto}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
+    $('#driver-orders').innerHTML=list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div><div class="driver-actions"><select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button>${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryPhoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryPhoto}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;"></div>`:''}${o.signature?`<div style="margin-top:10px;"><small>توقيع العميل:</small><br><img src="${o.signature}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
   }
   
   $('#today').textContent=today.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
@@ -170,5 +171,82 @@
       $('#upload-result').textContent='تم رفع الصورة بنجاح';
     };
     reader.readAsDataURL(file);
+  });
+
+  // Signature canvas functionality
+  const canvas=document.getElementById('signature-canvas');
+  const ctx=canvas.getContext('2d');
+  let isDrawing=false;
+  let lastX=0;
+  let lastY=0;
+
+  canvas.addEventListener('mousedown',e=>{
+    isDrawing=true;
+    [lastX,lastY]=[e.offsetX,e.offsetY];
+  });
+
+  canvas.addEventListener('mousemove',e=>{
+    if(!isDrawing)return;
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY);
+    ctx.lineTo(e.offsetX,e.offsetY);
+    ctx.strokeStyle='#000';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    [lastX,lastY]=[e.offsetX,e.offsetY];
+  });
+
+  canvas.addEventListener('mouseup',()=>isDrawing=false);
+  canvas.addEventListener('mouseout',()=>isDrawing=false);
+
+  // Touch support for mobile
+  canvas.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    const touch=e.touches[0];
+    const rect=canvas.getBoundingClientRect();
+    isDrawing=true;
+    [lastX,lastY]=[touch.clientX-rect.left,touch.clientY-rect.top];
+  });
+
+  canvas.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    if(!isDrawing)return;
+    const touch=e.touches[0];
+    const rect=canvas.getBoundingClientRect();
+    const x=touch.clientX-rect.left;
+    const y=touch.clientY-rect.top;
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY);
+    ctx.lineTo(x,y);
+    ctx.strokeStyle='#000';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    [lastX,lastY]=[x,y];
+  });
+
+  canvas.addEventListener('touchend',()=>isDrawing=false);
+
+  $('#clear-signature').addEventListener('click',()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    toast('تم مسح التوقيع');
+  });
+
+  $('#save-signature').addEventListener('click',async ()=>{
+    const orderId=$('#signature-order-select').value;
+    if(!orderId){
+      toast('اختر طلباً أولاً');
+      return;
+    }
+    const signatureData=canvas.toDataURL();
+    const { error }=await supabaseClient.from('orders').update({signature:signatureData}).eq('id',orderId);
+    if(error){
+      console.error('Error saving signature:',error);
+      toast('حدث خطأ أثناء حفظ التوقيع');
+      return;
+    }
+    await loadOrders();
+    toast('تم حفظ التوقيع بنجاح');
+    $('#signature-result').textContent='تم حفظ التوقيع بنجاح';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
   });
 })();
