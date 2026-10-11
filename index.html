@@ -61,7 +61,7 @@
           <select id="driver-filter"><option value="">كل السائقين</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select>
           <button class="btn secondary" id="clear-filters">مسح الفلاتر</button>
         </div></div>
-        <div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="select-all"></th><th>رقم الطلب</th><th>العميل</th><th>الجهاز</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="select-all"></th><th>رقم الطلب</th><th>العميل</th><th>الجهاز</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th>التسليم</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
         <div class="empty hidden" id="orders-empty">مفيش طلبات مطابقة للبحث.</div>
       </section>
       <p class="demo-note">البيانات محفوظة على Supabase ومشتركة بين جميع الأجهزة.</p>
@@ -93,6 +93,12 @@
             <label>السائق المسؤول <em>*</em><select name="driver" required><option value="">اختار السائق</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select></label>
             <label>تاريخ استلام الطلب <input name="receivedAt" type="datetime-local" id="edit-received-at" required></label>
             <label class="full">ملاحظات إضافية <textarea name="notes" rows="2" placeholder="ملاحظات للسيلز أو السائق"></textarea></label>
+          </div>
+        </section>
+        <section class="panel form-panel" id="delivery-proof-section" style="display:none;"><div class="section-title"><h3>دليل التسليم</h3><p>صور التسليم والتوقيع من السائق</p></div>
+          <div class="field-grid">
+            <div id="edit-delivery-photo-container"></div>
+            <div id="edit-signature-container"></div>
           </div>
         </section>
         <div class="form-footer"><button type="button" class="btn secondary" data-go="sales">إلغاء</button><button class="btn primary" type="submit">حفظ التغييرات <span>←</span></button></div>
