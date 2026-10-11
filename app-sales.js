@@ -42,7 +42,7 @@
     });
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
-      return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.devicetype)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentmethod)}<span class="subtext">${esc(o.paymentstatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<span class="subtext">${fmtTime(o.receivedat)}</span></td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل الطلب">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف الطلب" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
+      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.devicetype)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentmethod)}<span class="subtext">${esc(o.paymentstatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<span class="subtext">${fmtTime(o.receivedat)}</span></td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل الطلب">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف الطلب" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -174,6 +174,41 @@
     XLSX.utils.book_append_sheet(wb,ws,'الطلبات');
     XLSX.writeFile(wb,'YAS-Orders.xlsx');
     toast('تم تصدير البيانات بنجاح');
+  });
+
+  $('#bulk-update').addEventListener('click',()=>{
+    const selectedIds=[...document.querySelectorAll('.order-checkbox:checked')].map(cb=>cb.dataset.id);
+    if(selectedIds.length===0){
+      toast('اختر طلبات على الأقل للتحديث');
+      return;
+    }
+    const newStatus=prompt('اختر الحالة الجديدة:\n\n1. تم طلبه\n2. تم الشحن\n3. خرج للتوصيل\n4. تم التوصيل\n5. تعذر التسليم\n\nأدخل الرقم:');
+    const statusMap={'1':'تم طلبه','2':'تم الشحن','3':'خرج للتوصيل','4':'تم التوصيل','5':'تعذر التسليم'};
+    if(!newStatus||!statusMap[newStatus]){
+      toast('اختيار غير صحيح');
+      return;
+    }
+    const selectedStatus=statusMap[newStatus];
+    if(!confirm(`تأكد من تغيير حالة ${selectedIds.length} طلب إلى "${selectedStatus}"؟`)){
+      return;
+    }
+    selectedIds.forEach(async id=>{
+      const o=orders.find(x=>x.id===id);
+      if(o){
+        o.status=selectedStatus;
+        o.history=o.history||[];
+        o.history.push({status:selectedStatus,at:new Date().toISOString()});
+        const { error }=await supabaseClient.from('orders').update({status:o.status,history:o.history}).eq('id',id);
+        if(error) console.error('Error updating order:',error);
+      }
+    });
+    await loadOrders();
+    toast(`تم تحديث ${selectedIds.length} طلب بنجاح`);
+    document.querySelectorAll('.order-checkbox').forEach(cb=>cb.checked=false);
+  });
+
+  $('#select-all').addEventListener('change',e=>{
+    document.querySelectorAll('.order-checkbox').forEach(cb=>cb.checked=e.target.checked);
   });
   
   loadOrders();
