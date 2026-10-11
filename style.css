@@ -88,5 +88,18 @@ body.dark-mode{--navy:#0a1525;--navy2:#121f30;--blue:#3b82f6;--blue2:#1e3a5f;--i
     font-size: 24px;
     color: var(--blue);
   }
+  .location-controls {
+    margin-bottom: 15px;
+  }
+  .switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .switch input {
+    width: 50px;
+    height: 24px;
+  }
 }
 

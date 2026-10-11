@@ -71,6 +71,8 @@
     }
   });
   
+  let watchId=null;
+
   $('#update-location').addEventListener('click',async ()=>{
     const output=$('#location-result');
     if(!navigator.geolocation){
@@ -98,6 +100,46 @@
     },err=>{
       output.textContent=err.code===1?'لم تسمح بالوصول للموقع. فعّل إذن الموقع وحاول تاني.':'تعذر تحديد الموقع. تأكد من إعدادات الجهاز والاتصال.';
     },{enableHighAccuracy:true,timeout:12000});
+  });
+
+  $('#auto-location').addEventListener('change',e=>{
+    const output=$('#location-result');
+    if(e.target.checked){
+      if(!navigator.geolocation){
+        output.textContent='المتصفح لا يدعم تحديد الموقع.';
+        e.target.checked=false;
+        toast('ميزة الموقع غير مدعومة');
+        return;
+      }
+      output.textContent='جاري تفعيل التتبع التلقائي...';
+      watchId=navigator.geolocation.watchPosition(async pos=>{
+        const loc={lat:pos.coords.latitude.toFixed(5),lng:pos.coords.longitude.toFixed(5),at:new Date().toISOString()};
+        const driverName = 'أحمد حسن';
+        const driverOrders = orders.filter(o=>o.driver === driverName);
+
+        for (const o of driverOrders) {
+          const { error } = await supabaseClient
+            .from('orders')
+            .update({ location: loc })
+            .eq('id', o.id);
+          if (error) console.error('Error updating location:', error);
+        }
+
+        output.textContent=`آخر تحديث تلقائي: ${loc.lat}, ${loc.lng} · ${fmtTime(loc.at)}`;
+        await loadOrders();
+      },err=>{
+        console.error('Geolocation error:', err);
+        output.textContent='خطأ في التتبع التلقائي';
+      },{enableHighAccuracy:true,timeout:30000,maximumAge:0});
+      toast('تم تفعيل التتبع التلقائي (كل 30 ثانية)');
+    }else{
+      if(watchId){
+        navigator.geolocation.clearWatch(watchId);
+        watchId=null;
+        output.textContent='تم إيقاف التتبع التلقائي';
+        toast('تم إيقاف التتبع التلقائي');
+      }
+    }
   });
 
   loadOrders();
