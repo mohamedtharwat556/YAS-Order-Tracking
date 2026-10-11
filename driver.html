@@ -4,6 +4,13 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>YAS | واجهة السائق</title><link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Check authentication
+    const auth = localStorage.getItem('yas_auth');
+    if (!auth || JSON.parse(auth).role !== 'driver') {
+      window.location.href = 'login.html';
+    }
+  </script>
 </head>
 <body class="app-shell">
   <aside class="sidebar">
@@ -21,6 +28,12 @@
     <p class="demo-note">البيانات محفوظة على Supabase ومشتركة بين جميع الأجهزة.</p>
   </main>
   <div class="toast" id="toast" role="status"></div>
+  <script>
+    function logout() {
+      localStorage.removeItem('yas_auth');
+      window.location.href = 'login.html';
+    }
+  </script>
   <script src="supabase-config.js"></script>
   <script src="app-driver.js"></script>
 </body></html>

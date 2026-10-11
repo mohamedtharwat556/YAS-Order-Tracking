@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YAS | تسجيل الدخول</title><link rel="stylesheet" href="style.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+    .login-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .login-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .role-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .role-tab {
+      flex: 1;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+    }
+    .role-tab.active {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="app-shell">
+  <main class="main full-width">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="brand-mark" style="font-size: 2rem; margin-bottom: 0.5rem;">Y</div>
+          <h1>YAS Order & Delivery</h1>
+          <p class="muted">تسجيل الدخول</p>
+        </div>
+        <div class="role-tabs">
+          <button class="role-tab active" data-role="sales">المبيعات</button>
+          <button class="role-tab" data-role="driver">السائق</button>
+        </div>
+        <form id="login-form" class="form-layout">
+          <label>البريد الإلكتروني <input name="email" type="email" required placeholder="email@example.com"></label>
+          <label>كلمة المرور <input name="password" type="password" required placeholder="••••••••"></label>
+          <button class="btn primary full-width" type="submit">تسجيل الدخول</button>
+        </form>
+        <p class="muted" style="text-align: center; margin-top: 1rem; font-size: 0.875rem;">
+          للتجربة: sales@yas.com / sales123 أو driver@yas.com / driver123
+        </p>
+      </div>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    const users = {
+      sales: { email: 'sales@yas.com', password: 'sales123', redirect: 'index.html' },
+      driver: { email: 'driver@yas.com', password: 'driver123', redirect: 'driver.html' }
+    };
+
+    let selectedRole = 'sales';
+
+    document.querySelectorAll('.role-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        selectedRole = tab.dataset.role;
+      });
+    });
+
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+      const user = users[selectedRole];
+
+      if (data.email === user.email && data.password === user.password) {
+        localStorage.setItem('yas_auth', JSON.stringify({ role: selectedRole, email: data.email }));
+        window.location.href = user.redirect;
+      } else {
+        toast('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      }
+    });
+
+    // Check if already logged in
+    const auth = localStorage.getItem('yas_auth');
+    if (auth) {
+      const { role } = JSON.parse(auth);
+      window.location.href = role === 'sales' ? 'index.html' : 'driver.html';
+    }
+  </script>
+</body>
+</html>

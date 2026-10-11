@@ -4,6 +4,13 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>YAS | إدارة الطلبات والتوصيل</title><link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Check authentication
+    const auth = localStorage.getItem('yas_auth');
+    if (!auth || JSON.parse(auth).role !== 'sales') {
+      window.location.href = 'login.html';
+    }
+  </script>
 </head>
 <body class="app-shell">
   <aside class="sidebar">
@@ -11,7 +18,7 @@
     <div class="nav-label">قسم المبيعات</div>
     <button class="nav-item active" data-view="sales"><span>▦</span> لوحة الطلبات</button>
     <button class="nav-item" data-view="new-order"><span>＋</span> إنشاء طلب جديد</button>
-    <div class="sidebar-bottom"><div class="avatar">م</div><div><b>محمد ثروت</b><small>Sales · نسخة تجريبية</small></div></div>
+    <div class="sidebar-bottom"><div class="avatar">م</div><div><b>محمد ثروت</b><small>Sales · نسخة تجريبية</small></div><button class="btn secondary" onclick="logout()" style="margin-top: 0.5rem; font-size: 0.875rem;">تسجيل الخروج</button></div>
   </aside>
   <main class="main">
     <header class="topbar"><div><div class="eyebrow">YAS / OPERATIONS</div><h1 id="page-title">لوحة إدارة الطلبات</h1></div><div class="top-actions"><span class="today" id="today"></span><span class="avatar">م</span></div></header>
@@ -64,6 +71,12 @@
     </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
+  <script>
+    function logout() {
+      localStorage.removeItem('yas_auth');
+      window.location.href = 'login.html';
+    }
+  </script>
   <script src="supabase-config.js"></script>
   <script src="app-sales.js"></script>
 </body></html>

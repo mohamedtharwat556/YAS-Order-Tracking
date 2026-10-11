@@ -93,13 +93,6 @@
       output.textContent=err.code===1?'لم تسمح بالوصول للموقع. فعّل إذن الموقع وحاول تاني.':'تعذر تحديد الموقع. تأكد من إعدادات الجهاز والاتصال.';
     },{enableHighAccuracy:true,timeout:12000});
   });
-  
-  function logout(){
-    if(confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')){
-      window.location.href='index.html';
-    }
-  }
-  window.logout = logout;
 
   loadOrders();
 })();
