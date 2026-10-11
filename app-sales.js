@@ -117,6 +117,47 @@
       }
     });
   }
+
+  function generateReport(period){
+    const now=new Date();
+    let startDate;
+    if(period==='today'){
+      startDate=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    }else if(period==='week'){
+      startDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()-7);
+    }else if(period==='month'){
+      startDate=new Date(now.getFullYear(),now.getMonth(),1);
+    }
+
+    const filtered=orders.filter(o=>{
+      const orderDate=new Date(o.receivedat);
+      return orderDate>=startDate;
+    });
+
+    const total=filtered.length;
+    const revenue=filtered.reduce((sum,o)=>sum+(parseFloat(o.amount)||0),0);
+    const completed=filtered.filter(o=>o.status==='تم التوصيل').length;
+    const pending=filtered.filter(o=>['تم طلبه','تم الشحن','خرج للتوصيل'].includes(o.status)).length;
+
+    const periodNames={today:'اليوم',week:'هذا الأسبوع',month:'هذا الشهر'};
+    $('#report-result').innerHTML=`
+      <div class="report-summary">
+        <h3>تقرير ${periodNames[period]}</h3>
+        <div class="report-stats">
+          <div><strong>${total}</strong><small>إجمالي الطلبات</small></div>
+          <div><strong>${revenue.toLocaleString('ar-EG')} ج.م</strong><small>إجمالي المبيعات</small></div>
+          <div><strong>${completed}</strong><small>تم التوصيل</small></div>
+          <div><strong>${pending}</strong><small>قيد التوصيل</small></div>
+        </div>
+      </div>
+    `;
+    $('#report-result').classList.remove('hidden');
+  }
+
+  $('#generate-report').addEventListener('click',()=>{
+    const period=$('#report-period').value;
+    generateReport(period);
+  });
   
   $('#today').textContent=today.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
   $$('[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
