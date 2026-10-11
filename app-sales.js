@@ -61,17 +61,30 @@
     const count=String(orders.filter(o=>o.id&&o.id.startsWith('YAS-'+day)).length+1).padStart(3,'0');
 
     const o={
-      ...data,
       id:`YAS-${day}-${count}`,
+      customer: data.customer,
+      phone: data.phone,
+      address: data.address,
+      mapLink: data.mapLink || null,
+      deviceType: data.deviceType,
+      brand: data.brand,
+      quantity: parseInt(data.quantity) || 1,
+      amount: data.amount,
+      details: data.details,
+      paymentMethod: data.paymentMethod,
+      paymentStatus: data.paymentStatus,
+      driver: data.driver,
+      receivedAt: data.receivedAt,
+      notes: data.notes,
       status:'تم طلبه',
       history:[{status:'تم طلبه',at:new Date().toISOString()}],
-      location:null,
-      quantity: parseInt(data.quantity) || 1
+      location:null
     };
 
     const { error } = await supabaseClient.from('orders').insert([o]);
     if (error) {
       console.error('Error creating order:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       toast('حدث خطأ أثناء حفظ الطلب: ' + error.message);
       return;
     }
