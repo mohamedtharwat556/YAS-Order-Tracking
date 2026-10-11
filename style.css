@@ -49,5 +49,17 @@ body.dark-mode{--navy:#0a1525;--navy2:#121f30;--blue:#3b82f6;--blue2:#1e3a5f;--i
     gap: 20px;
     margin-top: 20px;
   }
+  .driver-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .stat-card.small {
+    padding: 15px;
+  }
+  .stat-card.small strong {
+    font-size: 24px;
+  }
 }
 
