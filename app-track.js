@@ -12,6 +12,7 @@
       .order('created_at', { ascending: false });
     if (error) {
       console.error('Error loading orders:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return;
     }
     orders = data || [];

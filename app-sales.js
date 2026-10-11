@@ -12,6 +12,7 @@
       .order('created_at', { ascending: false });
     if (error) {
       console.error('Error loading orders:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return;
     }
     orders = data || [];
@@ -58,12 +59,20 @@
     const data=Object.fromEntries(new FormData(form).entries());
     const day=new Date(data.receivedAt||Date.now()).toISOString().slice(0,10).replaceAll('-','');
     const count=String(orders.filter(o=>o.id&&o.id.startsWith('YAS-'+day)).length+1).padStart(3,'0');
-    const o={...data,id:`YAS-${day}-${count}`,status:'تم طلبه',history:[{status:'تم طلبه',at:new Date().toISOString()}],location:null};
+
+    const o={
+      ...data,
+      id:`YAS-${day}-${count}`,
+      status:'تم طلبه',
+      history:[{status:'تم طلبه',at:new Date().toISOString()}],
+      location:null,
+      quantity: parseInt(data.quantity) || 1
+    };
 
     const { error } = await supabaseClient.from('orders').insert([o]);
     if (error) {
       console.error('Error creating order:', error);
-      toast('حدث خطأ أثناء حفظ الطلب');
+      toast('حدث خطأ أثناء حفظ الطلب: ' + error.message);
       return;
     }
 
