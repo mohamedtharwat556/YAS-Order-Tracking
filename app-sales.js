@@ -33,7 +33,7 @@
     const filtered=orders.filter(o=>(!f||o.status===f)&&[o.id,o.customer,o.phone,o.brand].some(v=>String(v||'').toLowerCase().includes(q)));
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
-      return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.devicetype)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentmethod)}<span class="subtext">${esc(o.paymentstatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<span class="subtext">${fmtTime(o.receivedat)}</span></td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل الطلب">✏️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
+      return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.devicetype)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentmethod)}<span class="subtext">${esc(o.paymentstatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<span class="subtext">${fmtTime(o.receivedat)}</span></td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل الطلب">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف الطلب" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -44,7 +44,7 @@
   $('#order-search').addEventListener('input',renderSales);
   $('#status-filter').addEventListener('change',renderSales);
   
-  $('#orders-table').addEventListener('click',e=>{
+  $('#orders-table').addEventListener('click',async e=>{
     const b=e.target.closest('[data-copy-link]');
     if(b){
       const link=b.dataset.copyLink;
@@ -71,6 +71,20 @@
         $('#edit-order-form').elements.receivedAt.value=o.receivedat;
         $('#edit-order-form').elements.notes.value=o.notes||'';
         go('edit-order');
+      }
+    }
+    const deleteBtn=e.target.closest('[data-delete-order]');
+    if(deleteBtn){
+      const orderId=deleteBtn.dataset.deleteOrder;
+      if(confirm(`هل أنت متأكد من حذف الطلب ${orderId}؟ لا يمكن التراجع عن هذا الإجراء.`)){
+        const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
+        if (error) {
+          console.error('Error deleting order:', error);
+          toast('حدث خطأ أثناء حذف الطلب');
+          return;
+        }
+        await loadOrders();
+        toast(`تم حذف الطلب ${orderId}`);
       }
     }
   });
