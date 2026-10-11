@@ -57,12 +57,10 @@
 
   function renderDashboard(){
     const total = orders.length;
-    const revenue = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
     const completed = orders.filter(o => o.status === 'تم التوصيل').length;
     const pending = orders.filter(o => ['تم طلبه', 'تم الشحن', 'خرج للتوصيل'].includes(o.status)).length;
 
     $('#dash-total').textContent = total;
-    $('#dash-revenue').textContent = revenue.toLocaleString('ar-EG') + ' ج.م';
     $('#dash-completed').textContent = completed;
     $('#dash-pending').textContent = pending;
 
@@ -94,36 +92,6 @@
       }
     });
 
-    // Payment Method Chart
-    const paymentCounts = {
-      'كاش': orders.filter(o => o.paymentmethod === 'كاش').length,
-      'عند الاستلام': orders.filter(o => o.paymentmethod === 'عند الاستلام').length,
-      'تحويل بنكي': orders.filter(o => o.paymentmethod === 'تحويل بنكي').length,
-      'اتفاق': orders.filter(o => o.paymentmethod === 'اتفاق بين السيلز والعميل').length
-    };
-
-    const paymentCtx = document.getElementById('paymentChart');
-    if (window.paymentChartInstance) window.paymentChartInstance.destroy();
-    window.paymentChartInstance = new Chart(paymentCtx, {
-      type: 'bar',
-      data: {
-        labels: Object.keys(paymentCounts),
-        datasets: [{
-          label: 'عدد الطلبات',
-          data: Object.values(paymentCounts),
-          backgroundColor: '#3b82f6'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
   }
 
   function generateReport(period){
@@ -143,7 +111,6 @@
     });
 
     const total=filtered.length;
-    const revenue=filtered.reduce((sum,o)=>sum+(parseFloat(o.amount)||0),0);
     const completed=filtered.filter(o=>o.status==='تم التوصيل').length;
     const pending=filtered.filter(o=>['تم طلبه','تم الشحن','خرج للتوصيل'].includes(o.status)).length;
 
@@ -153,7 +120,6 @@
         <h3>تقرير ${periodNames[period]}</h3>
         <div class="report-stats">
           <div><strong>${total}</strong><small>إجمالي الطلبات</small></div>
-          <div><strong>${revenue.toLocaleString('ar-EG')} ج.م</strong><small>إجمالي المبيعات</small></div>
           <div><strong>${completed}</strong><small>تم التوصيل</small></div>
           <div><strong>${pending}</strong><small>قيد التوصيل</small></div>
         </div>
@@ -208,7 +174,6 @@
       'نوع الجهاز':o.devicetype,
       'الماركة':o.brand,
       'الكمية':o.quantity,
-      'القيمة':o.amount,
       'التفاصيل':o.details,
       'طريقة الدفع':o.paymentmethod,
       'حالة الدفع':o.paymentstatus,
