@@ -44,7 +44,8 @@
   $('#tracking-form').addEventListener('submit',async e=>{
     e.preventDefault();
     await loadOrders();
-    const d=Object.fromEntries(new FormData(e.currentTarget).entries());
+    const form = e.target;
+    const d=Object.fromEntries(new FormData(form).entries());
     const o=orders.find(x=>x.id.trim().toLowerCase()===d.orderId.trim().toLowerCase()&&x.phone.replace(/\D/g,'')===d.phone.replace(/\D/g,''));
     if(!o){
       $('#tracking-result').classList.add('hidden');
