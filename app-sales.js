@@ -225,7 +225,7 @@
     toast('تم تصدير البيانات بنجاح');
   });
 
-  $('#bulk-update').addEventListener('click',()=>{
+  $('#bulk-update').addEventListener('click',async ()=>{
     const selectedIds=[...document.querySelectorAll('.order-checkbox:checked')].map(cb=>cb.dataset.id);
     if(selectedIds.length===0){
       toast('اختر طلبات على الأقل للتحديث');
@@ -395,5 +395,4 @@
   });
 
   loadOrders();
-  setReceivedAt();
 })();
