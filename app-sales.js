@@ -15,7 +15,15 @@
       console.error('Error details:', JSON.stringify(error, null, 2));
       return;
     }
-    orders = data || [];
+    // Normalize data from lowercase to camelCase for display
+    orders = (data || []).map(o => ({
+      ...o,
+      mapLink: o.maplink || o.mapLink,
+      deviceType: o.devicetype || o.deviceType,
+      paymentMethod: o.paymentmethod || o.paymentMethod,
+      paymentStatus: o.paymentstatus || o.paymentStatus,
+      receivedAt: o.receivedat || o.receivedAt
+    }));
     renderSales();
   }
   const $ = s => document.querySelector(s);
