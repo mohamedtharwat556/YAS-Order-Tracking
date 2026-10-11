@@ -59,8 +59,8 @@
           <button class="role-tab" data-role="driver">السائق</button>
         </div>
         <form id="login-form" class="form-layout">
-          <label>البريد الإلكتروني <input name="email" type="email" required placeholder="email@example.com"></label>
-          <label>كلمة المرور <input name="password" type="password" required placeholder="••••••••"></label>
+          <label>البريد الإلكتروني <input name="email" type="email" required placeholder="email@example.com" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"></label>
+          <label>كلمة المرور <input name="password" type="password" required placeholder="••••••••" minlength="6"></label>
           <button class="btn primary full-width" type="submit">تسجيل الدخول</button>
         </form>
       </div>
