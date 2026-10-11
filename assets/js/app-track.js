@@ -1,12 +1,21 @@
 (() => {
-  const STORE = 'yas_orders_frontend_v1';
   const fmtDate = d => new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
   const fmtTime = d => new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
   const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const statusIndex = s => ['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل'].indexOf(s);
-  
-  let orders;
-  try { const saved = localStorage.getItem(STORE); orders = saved ? JSON.parse(saved) : []; } catch { orders = []; }
+
+  let orders = [];
+  async function loadOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error loading orders:', error);
+      return;
+    }
+    orders = data || [];
+  }
   
   const $ = s => document.querySelector(s);
   
@@ -31,8 +40,9 @@
     $('#order-input').value = orderFromUrl;
   }
   
-  $('#tracking-form').addEventListener('submit',e=>{
+  $('#tracking-form').addEventListener('submit',async e=>{
     e.preventDefault();
+    await loadOrders();
     const d=Object.fromEntries(new FormData(e.currentTarget).entries());
     const o=orders.find(x=>x.id.trim().toLowerCase()===d.orderId.trim().toLowerCase()&&x.phone.replace(/\D/g,'')===d.phone.replace(/\D/g,''));
     if(!o){

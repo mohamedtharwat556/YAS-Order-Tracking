@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>YAS | إدارة الطلبات والتوصيل</title><link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="app-shell">
   <aside class="sidebar">
@@ -27,7 +28,7 @@
         <div class="table-wrap"><table><thead><tr><th>رقم الطلب</th><th>العميل</th><th>الجهاز</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
         <div class="empty hidden" id="orders-empty">مفيش طلبات مطابقة للبحث.</div>
       </section>
-      <p class="demo-note">نسخة Frontend تجريبية: البيانات محفوظة على نفس المتصفح فقط، وليست مشتركة بين الأجهزة.</p>
+      <p class="demo-note">البيانات محفوظة على Supabase ومشتركة بين جميع الأجهزة.</p>
     </section>
     <section class="view" id="view-new-order">
       <div class="form-intro"><div class="eyebrow">NEW ORDER</div><h2>تسجيل طلب جديد</h2><p>املأ بيانات العميل والطلب، وبعد الحفظ هيتولد رقم طلب تلقائي.</p></div>
@@ -63,5 +64,6 @@
     </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
+  <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/app-sales.js"></script>
 </body></html>

@@ -1,21 +1,22 @@
 (() => {
-  const STORE = 'yas_orders_frontend_v1';
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api/orders'
-    : 'https://yas-backend.vercel.app/api/orders';
-  
   const today = new Date();
   const fmtDate = d => new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
   const fmtTime = d => new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
   const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const initial = [
-    {id:'YAS-20261010-001',customer:'أحمد محمد',phone:'01012345678',address:'المنصورة، شارع الجيش، بجوار البنك',mapLink:'',deviceType:'لابتوب',brand:'Dell Latitude',quantity:1,amount:'18500',details:'لابتوب Dell Latitude',paymentMethod:'كاش',paymentStatus:'مدفوع',driver:'أحمد حسن',receivedAt:new Date().toISOString(),status:'تم التوصيل',notes:'الاتصال قبل الوصول',history:[],location:null},
-    {id:'YAS-20261010-002',customer:'سارة أحمد',phone:'01098765432',address:'دمياط الجديدة، الحي الأول',mapLink:'',deviceType:'لابتوب',brand:'Lenovo ThinkPad',quantity:1,amount:'23000',details:'Lenovo ThinkPad',paymentMethod:'عند الاستلام',paymentStatus:'غير مدفوع',driver:'أحمد حسن',receivedAt:new Date().toISOString(),status:'خرج للتوصيل',notes:'',history:[],location:null},
-    {id:'YAS-20261010-003',customer:'خالد محمود',phone:'01122334455',address:'القاهرة، مدينة نصر',mapLink:'',deviceType:'شاشة تفاعلية',brand:'Hikvision 65 inch',quantity:1,amount:'42000',details:'شاشة تفاعلية',paymentMethod:'تحويل بنكي',paymentStatus:'مدفوع',driver:'محمود علي',receivedAt:new Date().toISOString(),status:'تم الشحن',notes:'',history:[],location:null}
-  ];
-  let orders;
-  try { const saved = localStorage.getItem(STORE); orders = saved ? JSON.parse(saved) : initial; } catch { orders = initial; }
-  const save = () => localStorage.setItem(STORE,JSON.stringify(orders));
+
+  let orders = [];
+  async function loadOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error loading orders:', error);
+      return;
+    }
+    orders = data || [];
+    renderSales();
+  }
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);}
@@ -50,24 +51,29 @@
     }
   });
   
-  $('#order-form').addEventListener('submit',e=>{
+  $('#order-form').addEventListener('submit',async e=>{
     e.preventDefault();
     const form=e.currentTarget;
     if(!form.reportValidity())return;
     const data=Object.fromEntries(new FormData(form).entries());
     const day=new Date(data.receivedAt||Date.now()).toISOString().slice(0,10).replaceAll('-','');
-    const count=String(orders.filter(o=>o.id.startsWith('YAS-'+day)).length+1).padStart(3,'0');
+    const count=String(orders.filter(o=>o.id&&o.id.startsWith('YAS-'+day)).length+1).padStart(3,'0');
     const o={...data,id:`YAS-${day}-${count}`,status:'تم طلبه',history:[{status:'تم طلبه',at:new Date().toISOString()}],location:null};
-    orders.unshift(o);
-    save();
+
+    const { error } = await supabase.from('orders').insert([o]);
+    if (error) {
+      console.error('Error creating order:', error);
+      toast('حدث خطأ أثناء حفظ الطلب');
+      return;
+    }
+
     form.reset();
     setReceivedAt();
-    renderSales();
+    await loadOrders();
     go('sales');
     toast(`تم تسجيل الطلب بنجاح · ${o.id}`);
   });
-  
-  save();
+
+  loadOrders();
   setReceivedAt();
-  renderSales();
 })();

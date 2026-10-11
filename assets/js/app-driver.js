@@ -1,13 +1,22 @@
 (() => {
-  const STORE = 'yas_orders_frontend_v1';
   const today = new Date();
   const fmtDate = d => new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
   const fmtTime = d => new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
   const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  
-  let orders;
-  try { const saved = localStorage.getItem(STORE); orders = saved ? JSON.parse(saved) : []; } catch { orders = []; }
-  const save = () => localStorage.setItem(STORE,JSON.stringify(orders));
+
+  let orders = [];
+  async function loadOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error loading orders:', error);
+      return;
+    }
+    orders = data || [];
+    renderDriver();
+  }
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   
@@ -22,7 +31,7 @@
   
   $('#today').textContent=today.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
   
-  $('#driver-orders').addEventListener('click',e=>{
+  $('#driver-orders').addEventListener('click',async e=>{
     const b=e.target.closest('[data-update-status]');
     if(b){
       const id=b.dataset.updateStatus;
@@ -32,7 +41,18 @@
       o.status=sel.value;
       o.history=o.history||[];
       o.history.push({status:o.status,at:new Date().toISOString()});
-      save();
+
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: o.status, history: o.history })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating order:', error);
+        toast('حدث خطأ أثناء تحديث الحالة');
+        return;
+      }
+
       renderDriver();
       toast('تم تحديث حالة الطلب');
       return;
@@ -44,7 +64,7 @@
     }
   });
   
-  $('#update-location').addEventListener('click',()=>{
+  $('#update-location').addEventListener('click',async ()=>{
     const output=$('#location-result');
     if(!navigator.geolocation){
       output.textContent='المتصفح لا يدعم تحديد الموقع.';
@@ -52,13 +72,21 @@
       return;
     }
     output.textContent='جاري طلب إذن الموقع...';
-    navigator.geolocation.getCurrentPosition(pos=>{
+    navigator.geolocation.getCurrentPosition(async pos=>{
       const loc={lat:pos.coords.latitude.toFixed(5),lng:pos.coords.longitude.toFixed(5),at:new Date().toISOString()};
       const driverName = 'أحمد حسن';
-      orders.filter(o=>o.driver === driverName).forEach(o=>{o.location=loc;});
-      save();
+      const driverOrders = orders.filter(o=>o.driver === driverName);
+
+      for (const o of driverOrders) {
+        const { error } = await supabase
+          .from('orders')
+          .update({ location: loc })
+          .eq('id', o.id);
+        if (error) console.error('Error updating location:', error);
+      }
+
       output.textContent=`آخر تحديث: ${loc.lat}, ${loc.lng} · ${fmtTime(loc.at)}`;
-      renderDriver();
+      await loadOrders();
       toast('تم تسجيل الموقع على الطلبات المسندة');
     },err=>{
       output.textContent=err.code===1?'لم تسمح بالوصول للموقع. فعّل إذن الموقع وحاول تاني.':'تعذر تحديد الموقع. تأكد من إعدادات الجهاز والاتصال.';
@@ -71,6 +99,6 @@
     }
   }
   window.logout = logout;
-  
-  renderDriver();
+
+  loadOrders();
 })();
