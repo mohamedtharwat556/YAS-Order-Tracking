@@ -33,7 +33,7 @@
     const filtered=orders.filter(o=>(!f||o.status===f)&&[o.id,o.customer,o.phone,o.brand].some(v=>String(v||'').toLowerCase().includes(q)));
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
-      return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.deviceType)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentMethod)}<span class="subtext">${esc(o.paymentStatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedAt)}<span class="subtext">${fmtTime(o.receivedAt)}</span></td><td><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
+      return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.devicetype)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentmethod)}<span class="subtext">${esc(o.paymentstatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<span class="subtext">${fmtTime(o.receivedat)}</span></td><td><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -65,16 +65,16 @@
       customer: data.customer,
       phone: data.phone,
       address: data.address,
-      mapLink: data.mapLink || null,
-      deviceType: data.deviceType,
+      maplink: data.mapLink || null,
+      devicetype: data.deviceType,
       brand: data.brand,
       quantity: parseInt(data.quantity) || 1,
       amount: data.amount,
       details: data.details,
-      paymentMethod: data.paymentMethod,
-      paymentStatus: data.paymentStatus,
+      paymentmethod: data.paymentMethod,
+      paymentstatus: data.paymentStatus,
       driver: data.driver,
-      receivedAt: data.receivedAt,
+      receivedat: data.receivedAt,
       notes: data.notes,
       status:'تم طلبه',
       history:[{status:'تم طلبه',at:new Date().toISOString()}],
