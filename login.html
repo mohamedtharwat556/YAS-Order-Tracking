@@ -47,6 +47,9 @@
 </head>
 <body class="app-shell">
   <main class="main full-width">
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 100;">
+      <button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button>
+    </div>
     <div class="login-container">
       <div class="login-card">
         <div class="login-header">
@@ -68,6 +71,18 @@
   </main>
   <div class="toast" id="toast" role="status"></div>
   <script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
     const users = {
       sales: { email: 'sales@yas.com', password: 'sales123', redirect: 'index.html' },
       driver: { email: 'driver@yas.com', password: 'driver123', redirect: 'driver.html' }

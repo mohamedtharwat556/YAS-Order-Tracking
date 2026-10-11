@@ -21,7 +21,7 @@
     <div class="sidebar-bottom"><button class="btn secondary full-width" onclick="logout()">تسجيل الخروج</button></div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><div class="eyebrow">YAS / OPERATIONS</div><h1 id="page-title">لوحة إدارة الطلبات</h1></div><div class="top-actions"><span class="today" id="today"></span></div></header>
+    <header class="topbar"><div><div class="eyebrow">YAS / OPERATIONS</div><h1 id="page-title">لوحة إدارة الطلبات</h1></div><div class="top-actions"><button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button><span class="today" id="today"></span></div></header>
     <section class="view active" id="view-sales">
       <div class="welcome-row"><div><h2>أهلًا بيك 👋</h2><p>تابع الطلبات وحالة التوصيل من مكان واحد.</p></div><button class="btn primary" data-go="new-order">＋ إنشاء طلب جديد</button></div>
       <div class="stats">
@@ -109,6 +109,18 @@
       localStorage.removeItem('yas_auth');
       window.location.href = 'login.html';
     }
+
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
   </script>
   <script src="supabase-config.js"></script>
   <script src="app-sales.js"></script>

@@ -19,7 +19,7 @@
     <div class="sidebar-bottom"><button class="btn secondary full-width" onclick="logout()">تسجيل الخروج</button></div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><div class="eyebrow">YAS / DRIVER</div><h1 id="page-title">الطلبات المسندة إليك</h1></div><div class="top-actions"><span class="today" id="today"></span></div></header>
+    <header class="topbar"><div><div class="eyebrow">YAS / DRIVER</div><h1 id="page-title">الطلبات المسندة إليك</h1></div><div class="top-actions"><button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button><span class="today" id="today"></span></div></header>
     <section class="view active">
       <div class="welcome-row"><div><div class="eyebrow">DRIVER WORKSPACE</div><h2>الطلبات المسندة إليك</h2><p>حدّث الحالة أو شارك آخر موقع يدويًا.</p></div><div class="driver-pill"><span class="live-dot"></span> وضع السائق</div></div>
       <div class="driver-layout"><div class="driver-orders" id="driver-orders"></div><aside class="panel driver-side"><div class="section-title"><span class="stat-icon blue">⌖</span><div><h3>مشاركة موقعي</h3><p>اضغط لتحديث آخر موقع بموافقتك.</p></div></div><div class="location-illustration">⌖</div><button class="btn primary full-width" id="update-location">تحديث موقعي الحالي</button><p class="muted" id="location-result">لم يتم تحديث الموقع بعد.</p><div class="privacy-tip">الموقع لا يتم تحديثه تلقائيًا. لازم تضغط الزر كل مرة، ويسمح المتصفح بالوصول للموقع.</div></aside></div>
@@ -32,6 +32,18 @@
       localStorage.removeItem('yas_auth');
       window.location.href = 'login.html';
     }
+
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
   </script>
   <script src="supabase-config.js"></script>
   <script src="app-driver.js"></script>
