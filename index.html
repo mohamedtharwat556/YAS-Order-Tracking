@@ -5,6 +5,7 @@
   <title>YAS | إدارة الطلبات والتوصيل</title><link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     // Check authentication
     const auth = localStorage.getItem('yas_auth');
@@ -47,6 +48,7 @@
       </div>
       <section class="panel">
         <div class="panel-heading"><div><h3>قائمة الطلبات</h3><p>ابحث برقم الطلب أو اسم العميل أو رقم الهاتف.</p></div><div class="filters">
+          <button class="btn secondary" id="export-excel" title="تصدير إلى Excel">📊 تصدير Excel</button>
           <input id="order-search" placeholder="ابحث عن طلب..." aria-label="البحث عن طلب">
           <select id="status-filter"><option value="">كل الحالات</option><option>تم طلبه</option><option>تم الشحن</option><option>خرج للتوصيل</option><option>تم التوصيل</option><option>تعذر التسليم</option></select>
           <select id="payment-filter"><option value="">كل طرق الدفع</option><option>كاش</option><option>عند الاستلام</option><option>تحويل بنكي</option><option>اتفاق بين السيلز والعميل</option></select>

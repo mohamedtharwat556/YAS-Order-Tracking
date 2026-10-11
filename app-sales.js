@@ -132,6 +132,49 @@
     $('#driver-filter').value='';
     renderSales();
   });
+
+  $('#export-excel').addEventListener('click',()=>{
+    const q=($('#order-search').value||'').trim().toLowerCase();
+    const statusFilter=$('#status-filter').value;
+    const paymentFilter=$('#payment-filter').value;
+    const driverFilter=$('#driver-filter').value;
+    const filtered=orders.filter(o=>{
+      const matchesSearch=!q||[o.id,o.customer,o.phone,o.brand].some(v=>String(v||'').toLowerCase().includes(q));
+      const matchesStatus=!statusFilter||o.status===statusFilter;
+      const matchesPayment=!paymentFilter||o.paymentmethod===paymentFilter;
+      const matchesDriver=!driverFilter||o.driver===driverFilter;
+      return matchesSearch&&matchesStatus&&matchesPayment&&matchesDriver;
+    });
+
+    if(filtered.length===0){
+      toast('لا توجد طلبات للتصدير');
+      return;
+    }
+
+    const exportData=filtered.map(o=>({
+      'رقم الطلب':o.id,
+      'العميل':o.customer,
+      'الهاتف':o.phone,
+      'العنوان':o.address,
+      'نوع الجهاز':o.devicetype,
+      'الماركة':o.brand,
+      'الكمية':o.quantity,
+      'القيمة':o.amount,
+      'التفاصيل':o.details,
+      'طريقة الدفع':o.paymentmethod,
+      'حالة الدفع':o.paymentstatus,
+      'السائق':o.driver,
+      'الحالة':o.status,
+      'تاريخ الاستلام':o.receivedat,
+      'ملاحظات':o.notes||''
+    }));
+
+    const ws=XLSX.utils.json_to_sheet(exportData);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'الطلبات');
+    XLSX.writeFile(wb,'YAS-Orders.xlsx');
+    toast('تم تصدير البيانات بنجاح');
+  });
   
   loadOrders();
   
