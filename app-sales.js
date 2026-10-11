@@ -29,8 +29,17 @@
     $('#stat-new').textContent=orders.filter(o=>o.status==='تم طلبه').length;
     $('#stat-out').textContent=orders.filter(o=>o.status==='خرج للتوصيل').length;
     $('#stat-done').textContent=orders.filter(o=>o.status==='تم التوصيل').length;
-    const q=($('#order-search').value||'').trim().toLowerCase(),f=$('#status-filter').value;
-    const filtered=orders.filter(o=>(!f||o.status===f)&&[o.id,o.customer,o.phone,o.brand].some(v=>String(v||'').toLowerCase().includes(q)));
+    const q=($('#order-search').value||'').trim().toLowerCase();
+    const statusFilter=$('#status-filter').value;
+    const paymentFilter=$('#payment-filter').value;
+    const driverFilter=$('#driver-filter').value;
+    const filtered=orders.filter(o=>{
+      const matchesSearch=!q||[o.id,o.customer,o.phone,o.brand].some(v=>String(v||'').toLowerCase().includes(q));
+      const matchesStatus=!statusFilter||o.status===statusFilter;
+      const matchesPayment=!paymentFilter||o.paymentmethod===paymentFilter;
+      const matchesDriver=!driverFilter||o.driver===driverFilter;
+      return matchesSearch&&matchesStatus&&matchesPayment&&matchesDriver;
+    });
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
       return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td><span class="customer-name">${esc(o.customer)}</span><span class="subtext">${esc(o.phone)}</span></td><td>${esc(o.devicetype)}<span class="subtext">${esc(o.brand)}</span></td><td>${esc(o.paymentmethod)}<span class="subtext">${esc(o.paymentstatus)}</span></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<span class="subtext">${fmtTime(o.receivedat)}</span></td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل الطلب">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف الطلب" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط التتبع">📋</button></td></tr>`;
@@ -114,6 +123,17 @@
   $$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
   $('#order-search').addEventListener('input',renderSales);
   $('#status-filter').addEventListener('change',renderSales);
+  $('#payment-filter').addEventListener('change',renderSales);
+  $('#driver-filter').addEventListener('change',renderSales);
+  $('#clear-filters').addEventListener('click',()=>{
+    $('#order-search').value='';
+    $('#status-filter').value='';
+    $('#payment-filter').value='';
+    $('#driver-filter').value='';
+    renderSales();
+  });
+  
+  loadOrders();
   
   $('#orders-table').addEventListener('click',async e=>{
     const b=e.target.closest('[data-copy-link]');

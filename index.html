@@ -46,7 +46,13 @@
         <article class="stat-card"><div class="stat-top"><span>تم التوصيل</span><span class="stat-icon green">✓</span></div><strong id="stat-done">0</strong><small>طلبات تم تسليمها</small></article>
       </div>
       <section class="panel">
-        <div class="panel-heading"><div><h3>قائمة الطلبات</h3><p>ابحث برقم الطلب أو اسم العميل أو رقم الهاتف.</p></div><div class="filters"><input id="order-search" placeholder="ابحث عن طلب..." aria-label="البحث عن طلب"><select id="status-filter"><option value="">كل الحالات</option><option>تم طلبه</option><option>تم الشحن</option><option>خرج للتوصيل</option><option>تم التوصيل</option><option>تعذر التسليم</option></select></div></div>
+        <div class="panel-heading"><div><h3>قائمة الطلبات</h3><p>ابحث برقم الطلب أو اسم العميل أو رقم الهاتف.</p></div><div class="filters">
+          <input id="order-search" placeholder="ابحث عن طلب..." aria-label="البحث عن طلب">
+          <select id="status-filter"><option value="">كل الحالات</option><option>تم طلبه</option><option>تم الشحن</option><option>خرج للتوصيل</option><option>تم التوصيل</option><option>تعذر التسليم</option></select>
+          <select id="payment-filter"><option value="">كل طرق الدفع</option><option>كاش</option><option>عند الاستلام</option><option>تحويل بنكي</option><option>اتفاق بين السيلز والعميل</option></select>
+          <select id="driver-filter"><option value="">كل السائقين</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select>
+          <button class="btn secondary" id="clear-filters">مسح الفلاتر</button>
+        </div></div>
         <div class="table-wrap"><table><thead><tr><th>رقم الطلب</th><th>العميل</th><th>الجهاز</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
         <div class="empty hidden" id="orders-empty">مفيش طلبات مطابقة للبحث.</div>
       </section>
