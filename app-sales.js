@@ -6,7 +6,7 @@
 
   let orders = [];
   async function loadOrders() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
@@ -60,7 +60,7 @@
     const count=String(orders.filter(o=>o.id&&o.id.startsWith('YAS-'+day)).length+1).padStart(3,'0');
     const o={...data,id:`YAS-${day}-${count}`,status:'تم طلبه',history:[{status:'تم طلبه',at:new Date().toISOString()}],location:null};
 
-    const { error } = await supabase.from('orders').insert([o]);
+    const { error } = await supabaseClient.from('orders').insert([o]);
     if (error) {
       console.error('Error creating order:', error);
       toast('حدث خطأ أثناء حفظ الطلب');

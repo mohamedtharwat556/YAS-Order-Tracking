@@ -6,7 +6,7 @@
 
   let orders = [];
   async function loadOrders() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });

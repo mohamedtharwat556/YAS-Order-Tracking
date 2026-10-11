@@ -6,7 +6,7 @@
 
   let orders = [];
   async function loadOrders() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
@@ -42,7 +42,7 @@
       o.history=o.history||[];
       o.history.push({status:o.status,at:new Date().toISOString()});
 
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('orders')
         .update({ status: o.status, history: o.history })
         .eq('id', id);
@@ -78,7 +78,7 @@
       const driverOrders = orders.filter(o=>o.driver === driverName);
 
       for (const o of driverOrders) {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from('orders')
           .update({ location: loc })
           .eq('id', o.id);
