@@ -337,6 +337,12 @@
     await loadOrders();
     go('sales');
     toast(`تم تسجيل الطلب بنجاح · ${o.id}`);
+
+    // Open WhatsApp with tracking link
+    const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
+    const message=`مرحباً ${o.customer}، طلبك رقم ${o.id} تم تسجيله بنجاح! 📦\n\nتابع حالة طلبك هنا:\n${trackUrl}\n\nشكراً لتعاملك معنا! 🙏`;
+    const whatsappUrl=`https://wa.me/${o.phone.replace(/^0/, '20')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   });
 
   $('#edit-order-form').addEventListener('submit',async e=>{
