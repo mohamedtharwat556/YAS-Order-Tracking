@@ -37,6 +37,39 @@
       </section>
       <p class="demo-note">البيانات محفوظة على Supabase ومشتركة بين جميع الأجهزة.</p>
     </section>
+    <section class="view" id="view-edit-order">
+      <div class="form-intro"><div class="eyebrow">EDIT ORDER</div><h2>تعديل الطلب</h2><p>عدل بيانات الطلب، ثم احفظ التغييرات.</p></div>
+      <form id="edit-order-form" class="form-layout">
+        <input type="hidden" name="editOrderId" id="edit-order-id">
+        <section class="panel form-panel"><div class="section-title"><span class="step">01</span><div><h3>بيانات العميل</h3><p>بيانات التواصل والتوصيل</p></div></div>
+          <div class="field-grid">
+            <label>اسم العميل <em>*</em><input name="customer" required placeholder="الاسم بالكامل" minlength="3"></label>
+            <label>رقم الهاتف <em>*</em><input name="phone" required inputmode="tel" placeholder="01xxxxxxxxx" pattern="01[0-9]{9}" title="رقم الهاتف يجب أن يبدأ بـ 01 ويكون 11 رقم"></label>
+            <label class="full">العنوان بالتفصيل <em>*</em><textarea name="address" required rows="3" placeholder="المحافظة، المنطقة، الشارع، رقم المبنى، الدور..." minlength="10"></textarea></label>
+            <label class="full">رابط موقع العميل (Google Maps)<input name="mapLink" type="url" placeholder="https://maps.google.com/..." pattern="https?://.+" title="رابط يجب أن يبدأ بـ http:// أو https://"></label>
+          </div>
+        </section>
+        <section class="panel form-panel"><div class="section-title"><span class="step">02</span><div><h3>تفاصيل الطلب</h3><p>الجهاز والماركة والملاحظات</p></div></div>
+          <div class="field-grid">
+            <label>نوع الجهاز <em>*</em><select name="deviceType" required><option value="">اختار نوع الجهاز</option><option>لابتوب</option><option>كمبيوتر مكتبي</option><option>شاشة تفاعلية</option><option>جهاز POS / كاشير</option><option>بروجكتور</option><option>إكسسوارات</option><option>أخرى</option></select></label>
+            <label>الماركة / الموديل <em>*</em><input name="brand" required placeholder="مثال: Lenovo ThinkPad" minlength="2"></label>
+            <label>الكمية <input name="quantity" type="number" min="1" max="100" value="1"></label>
+            <label>قيمة الطلب (جنيه) <input name="amount" type="number" min="0" step="0.01" placeholder="0.00" required></label>
+            <label class="full">تفاصيل الطلب <em>*</em><textarea name="details" required rows="3" placeholder="وصف الطلب أو المنتج المطلوب" minlength="5"></textarea></label>
+          </div>
+        </section>
+        <section class="panel form-panel"><div class="section-title"><span class="step">03</span><div><h3>الدفع والتوصيل</h3><p>تحديد طريقة الدفع والسائق المسؤول</p></div></div>
+          <div class="field-grid">
+            <label>طريقة الدفع <em>*</em><select name="paymentMethod" required><option>كاش</option><option>عند الاستلام</option><option>تحويل بنكي</option><option>اتفاق بين السيلز والعميل</option></select></label>
+            <label>حالة الدفع <em>*</em><select name="paymentStatus" required><option>غير مدفوع</option><option>مدفوع</option><option>مدفوع جزئيًا</option></select></label>
+            <label>السائق المسؤول <em>*</em><select name="driver" required><option value="">اختار السائق</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select></label>
+            <label>تاريخ استلام الطلب <input name="receivedAt" type="datetime-local" id="edit-received-at" required></label>
+            <label class="full">ملاحظات إضافية <textarea name="notes" rows="2" placeholder="ملاحظات للسيلز أو السائق"></textarea></label>
+          </div>
+        </section>
+        <div class="form-footer"><button type="button" class="btn secondary" data-go="sales">إلغاء</button><button class="btn primary" type="submit">حفظ التغييرات <span>←</span></button></div>
+      </form>
+    </section>
     <section class="view" id="view-new-order">
       <div class="form-intro"><div class="eyebrow">NEW ORDER</div><h2>تسجيل طلب جديد</h2><p>املأ بيانات العميل والطلب، وبعد الحفظ هيتولد رقم طلب تلقائي.</p></div>
       <form id="order-form" class="form-layout">
