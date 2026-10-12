@@ -167,19 +167,6 @@ table td small {
   transition: left 0.5s ease;
 }
 
-.delivery-proof {
-  margin-top: 20px;
-  padding: 15px;
-  background: var(--blue2);
-  border-radius: 12px;
-}
-
-.delivery-proof h3 {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-  color: var(--navy);
-}
-
 .timeline-car {
   width: 30px;
   height: 30px;
@@ -193,5 +180,18 @@ table td small {
 @keyframes carBounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
+}
+
+#delivery-proof-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--blue2);
+  border-radius: 12px;
+}
+
+#delivery-proof-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--navy);
 }
 
