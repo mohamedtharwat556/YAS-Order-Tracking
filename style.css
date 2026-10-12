@@ -180,3 +180,18 @@ table td small {
   color: var(--navy);
 }
 
+.timeline-car {
+  width: 30px;
+  height: 30px;
+  background-image: url('designforcars_new.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  animation: carBounce 1s ease-in-out infinite;
+}
+
+@keyframes carBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
