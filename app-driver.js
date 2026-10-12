@@ -61,6 +61,26 @@
 
     console.log('Filtered orders:', list);
     console.log('Filtered orders count:', list.length);
+
+    // Update stats
+    $('#driver-total').textContent = list.length;
+    $('#driver-pending').textContent = list.filter(o => ['تم طلبه', 'تم الشحن', 'خرج للتوصيل'].includes(o.status)).length;
+    $('#driver-completed').textContent = list.filter(o => o.status === 'تم التوصيل').length;
+
+    console.log('Stats updated - Total:', list.length, 'Pending:', $('#driver-pending').textContent, 'Completed:', $('#driver-completed').textContent);
+
+    // Update dropdowns
+    $('#photo-order-select').innerHTML='<option value="">اختر طلباً</option>'+list.map(o=>`<option value="${esc(o.id)}">${esc(o.id)} - ${esc(o.customer)}</option>`).join('');
+    $('#signature-order-select').innerHTML='<option value="">اختر طلباً</option>'+list.map(o=>`<option value="${esc(o.id)}">${esc(o.id)} - ${esc(o.customer)}</option>`).join('');
+
+    console.log('Dropdowns updated');
+
+    const ordersHtml = list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div><div class="driver-actions"><select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button>${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryPhoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryPhoto}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;"></div>`:''}${o.signature?`<div style="margin-top:10px;"><small>توقيع العميل:</small><br><img src="${o.signature}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
+
+    console.log('Orders HTML generated, length:', ordersHtml.length);
+    $('#driver-orders').innerHTML = ordersHtml;
+    console.log('Orders HTML set to #driver-orders');
+  }
     
     // Update stats
     $('#driver-total').textContent = list.length;
