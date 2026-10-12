@@ -262,6 +262,7 @@
         $('#edit-order-form').elements.paymentMethod.value=o.paymentmethod;
         $('#edit-order-form').elements.paymentStatus.value=o.paymentstatus;
         $('#edit-order-form').elements.driver.value=o.driver;
+        $('#edit-order-form').elements.driverPhone.value=o.driverphone||'';
         $('#edit-order-form').elements.receivedAt.value=o.receivedat;
         $('#edit-order-form').elements.notes.value=o.notes||'';
         
@@ -326,6 +327,7 @@
       paymentmethod: data.paymentMethod,
       paymentstatus: data.paymentStatus,
       driver: data.driver,
+      driverphone: data.driverPhone || null,
       receivedat: data.receivedAt,
       notes: data.notes,
       status:'تم طلبه',
@@ -375,6 +377,7 @@
       paymentmethod: data.paymentMethod,
       paymentstatus: data.paymentStatus,
       driver: data.driver,
+      driverphone: data.driverPhone || null,
       receivedat: data.receivedAt,
       notes: data.notes
     };
