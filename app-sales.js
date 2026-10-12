@@ -248,7 +248,6 @@
         $('#edit-order-form').elements.deviceType.value=o.devicetype;
         $('#edit-order-form').elements.brand.value=o.brand;
         $('#edit-order-form').elements.quantity.value=o.quantity;
-        $('#edit-order-form').elements.amount.value=o.amount;
         $('#edit-order-form').elements.details.value=o.details;
         $('#edit-order-form').elements.paymentMethod.value=o.paymentmethod;
         $('#edit-order-form').elements.paymentStatus.value=o.paymentstatus;

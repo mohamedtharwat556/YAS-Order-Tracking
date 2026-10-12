@@ -5,6 +5,8 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   let orders = [];
+  let selectedDriver = null;
+
   async function loadOrders() {
     const { data, error } = await supabaseClient
       .from('orders')
@@ -20,12 +22,17 @@
   }
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
-  
+
   function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);}
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};return `<span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span>`;}
-  
+
+  $('#driver-select').addEventListener('change', (e) => {
+    selectedDriver = e.target.value || null;
+    renderDriver();
+  });
+
   function renderDriver(){
-    const driverName = 'أحمد حسن'; // In Phase 2, this will come from auth
+    const driverName = selectedDriver || 'أحمد حسن';
     const list=orders.filter(o=>o.driver === driverName);
     
     // Update stats
