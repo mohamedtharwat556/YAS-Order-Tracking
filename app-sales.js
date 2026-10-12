@@ -157,6 +157,9 @@
     $('#payment-filter').value='';
     $('#driver-filter').value='';
     renderSales();
+
+  // Start with orders view instead of dashboard
+  go('sales');
   });
 
   $('#export-excel').addEventListener('click',()=>{
