@@ -475,3 +475,9 @@ textarea:focus-visible {
   background: var(--orange);
 }
 
+/* Completed Only Toggle Button */
+#toggle-completed-only.active {
+  background: var(--green);
+  color: white;
+}
+
