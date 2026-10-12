@@ -42,8 +42,10 @@
 
     // Display driver name in header
     const nameDisplay = document.getElementById('driver-name-display');
+    console.log('Name display element:', nameDisplay);
     if (nameDisplay && driverName) {
       nameDisplay.textContent = `مرحباً، ${driverName}`;
+      nameDisplay.style.display = 'block';
       console.log('Updated name display to:', nameDisplay.textContent);
     } else {
       console.log('Name display element not found or no driver name');
