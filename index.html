@@ -21,7 +21,7 @@
     <div class="nav-label">قسم المبيعات</div>
     <button class="nav-item" data-view="dashboard"><i data-lucide="bar-chart-2"></i> لوحة الإحصائيات</button>
     <button class="nav-item active" data-view="sales"><i data-lucide="layout-grid"></i> لوحة الطلبات</button>
-    <button class="nav-item" data-view="new-order"><i data-lucide="plus-circle"></i> إنشاء طلب جديد</button>
+    <button class="nav-item" data-view="new_order"><i data-lucide="plus-circle"></i> إنشاء طلب جديد</button>
     <div class="sidebar-bottom"><button class="btn secondary full-width" onclick="logout"><i data-lucide="log-out"></i> تسجيل الخروج</button></div>
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
@@ -46,7 +46,7 @@
       </section>
     </section>
     <section class="view active" id="view-sales">
-      <div class="welcome-row"><div><h2>أهلًا بيك 👋</h2><p>تابع الطلبات وحالة التوصيل من مكان واحد.</p></div><button class="btn primary" data-go="new-order">＋ إنشاء طلب جديد</button></div>
+      <div class="welcome-row"><div><h2>أهلًا بيك 👋</h2><p>تابع الطلبات وحالة التوصيل من مكان واحد.</p></div><button class="btn primary" data-go="new_order">＋ إنشاء طلب جديد</button></div>
       <div class="filter-actions"><button class="btn secondary" id="toggle-advanced-filters"><i data-lucide="filter"></i> فلاتر متقدمة</button><button class="btn secondary" id="toggle-completed-only"><i data-lucide="check-circle"></i> المكتملة فقط</button><button class="btn secondary" id="clear-filters"><i data-lucide="x"></i> مسح الفلاتر</button></div>
       <div class="advanced-filters" id="advanced-filters"><h3>فلاتر متقدمة</h3><div class="field-grid"><label>من تاريخ<input type="date" id="filter-date-from"></label><label>إلى تاريخ<input type="date" id="filter-date-to"></label><label>الحالة المتعددة<select id="filter-multiple-status" multiple><option value="تم طلبه">تم طلبه</option><option value="تم الشحن">تم الشحن</option><option value="خرج للتوصيل">خرج للتوصيل</option><option value="تم التوصيل">تم التوصيل</option><option value="تعذر التسليم">تعذر التسليم</option></select></label></div></div>
       <div class="stats">
@@ -69,10 +69,10 @@
         <div class="empty hidden" id="orders-empty">مفيش طلبات مطابقة للبحث.</div>
       </section>
     </section>
-    <section class="view" id="view-edit-order">
+    <section class="view" id="view-edit_order">
       <div class="form-intro"><div class="eyebrow">EDIT ORDER</div><h2>تعديل الطلب</h2><p>عدل بيانات الطلب، ثم احفظ التغييرات.</p></div>
-      <form id="edit-order-form" class="form-layout">
-        <input type="hidden" name="editOrderId" id="edit-order-id">
+      <form id="edit_order_form" class="form-layout">
+        <input type="hidden" name="editOrderId" id="edit_order_id">
         <section class="panel form-panel"><div class="section-title"><span class="step">01</span><div><h3>بيانات العميل</h3><p>بيانات التواصل والتوصيل</p></div></div>
           <div class="field-grid">
             <label>اسم العميل <em>*</em><input name="customer" required placeholder="الاسم بالكامل" minlength="3"></label>
@@ -118,7 +118,7 @@
         <div class="form-footer"><button type="button" class="btn secondary" data-go="sales">إلغاء</button><button class="btn primary" type="submit">حفظ التغييرات <span>←</span></button></div>
       </form>
     </section>
-    <section class="view" id="view-new-order">
+    <section class="view" id="view-new_order">
       <div class="form-intro"><div class="eyebrow">NEW ORDER</div><h2>تسجيل طلب جديد</h2><p>املأ بيانات العميل والطلب، وبعد الحفظ هيتولد رقم طلب تلقائي.</p></div>
       <form id="order-form" class="form-layout">
         <section class="panel form-panel"><div class="section-title"><span class="step">01</span><div><h3>بيانات العميل</h3><p>بيانات التواصل والتوصيل</p></div></div>

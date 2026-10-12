@@ -74,7 +74,15 @@
       });
     }
   });
-  function go(view){$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${view}`));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));const titles={dashboard:'لوحة الإحصائيات',sales:'لوحة إدارة الطلبات',new-order:'إنشاء طلب جديد',edit-order:'تعديل الطلب'};$('#page-title').textContent=titles[view]||'YAS';if(view==='sales')renderSales();if(view==='new-order')setReceivedAt();if(view==='dashboard')renderDashboard();}
+  function go(view){
+    $$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${view}`));
+    $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+    const titles={dashboard:'لوحة الإحصائيات',sales:'لوحة إدارة الطلبات',new_order:'إنشاء طلب جديد',edit_order:'تعديل الطلب'};
+    $('#page-title').textContent=titles[view]||'YAS';
+    if(view==='sales')renderSales();
+    if(view==='new_order')setReceivedAt();
+    if(view==='dashboard')renderDashboard();
+  }
   function setReceivedAt(){const el=$('#received-at');if(el&&!el.value){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());el.value=d.toISOString().slice(0,16);}}
   let showCompletedOnly = false;
   
@@ -121,7 +129,7 @@
       const signatureHtml=o.signature?`<img src="${o.signature}" alt="توقيع" onclick="showImageModal('${o.signature}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;" title="التوقيع">`:'';
       const ratingHtml=o.driverRating?`<span style="color:#f59e0b;font-size:16px;">${'★'.repeat(o.driverRating)}</span>`:'-';
       const notesHtml=o.customerNotes?`<span style="color:var(--muted);font-size:12px;max-width:100px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.customerNotes)}">${esc(o.customerNotes)}</span>`:'-';
-      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
+      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit_order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete_order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy_link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -320,31 +328,31 @@
   loadOrders();
   
   $('#orders-table').addEventListener('click',async e=>{
-    const b=e.target.closest('[data-copy-link]');
+    const b=e.target.closest('[data-copy_link]');
     if(b){
-      const link=b.dataset.copyLink;
+      const link=b.dataset.copy_link;
       navigator.clipboard.writeText(link).then(()=>toast('تم نسخ رابط التتبع ✓')).catch(()=>toast('خطأ في النسخ', 'error'));
     }
-    const editBtn=e.target.closest('[data-edit-order]');
+    const editBtn=e.target.closest('[data-edit_order]');
     if(editBtn){
-      const orderId=editBtn.dataset.editOrder;
+      const orderId=editBtn.dataset.edit_order;
       const o=orders.find(x=>x.id===orderId);
       if(o){
-        $('#edit-order-id').value=o.id;
-        $('#edit-order-form').elements.customer.value=o.customer;
-        $('#edit-order-form').elements.phone.value=o.phone;
-        $('#edit-order-form').elements.address.value=o.address;
-        $('#edit-order-form').elements.mapLink.value=o.maplink||'';
-        $('#edit-order-form').elements.deviceType.value=o.devicetype;
-        $('#edit-order-form').elements.brand.value=o.brand;
-        $('#edit-order-form').elements.quantity.value=o.quantity;
-        $('#edit-order-form').elements.details.value=o.details;
-        $('#edit-order-form').elements.paymentMethod.value=o.paymentmethod;
-        $('#edit-order-form').elements.paymentStatus.value=o.paymentstatus;
-        $('#edit-order-form').elements.driver.value=o.driver;
-        $('#edit-order-form').elements.driverPhone.value=o.driverphone||'';
-        $('#edit-order-form').elements.receivedAt.value=o.receivedat;
-        $('#edit-order-form').elements.notes.value=o.notes||'';
+        $('#edit_order_id').value=o.id;
+        $('#edit_order_form').elements.customer.value=o.customer;
+        $('#edit_order_form').elements.phone.value=o.phone;
+        $('#edit_order_form').elements.address.value=o.address;
+        $('#edit_order_form').elements.mapLink.value=o.maplink||'';
+        $('#edit_order_form').elements.deviceType.value=o.devicetype;
+        $('#edit_order_form').elements.brand.value=o.brand;
+        $('#edit_order_form').elements.quantity.value=o.quantity;
+        $('#edit_order_form').elements.details.value=o.details;
+        $('#edit_order_form').elements.paymentMethod.value=o.paymentmethod;
+        $('#edit_order_form').elements.paymentStatus.value=o.paymentstatus;
+        $('#edit_order_form').elements.driver.value=o.driver;
+        $('#edit_order_form').elements.driverPhone.value=o.driverphone||'';
+        $('#edit_order_form').elements.receivedAt.value=o.receivedat;
+        $('#edit_order_form').elements.notes.value=o.notes||'';
         
         // Show delivery proof if exists
         const proofSection=$('#delivery-proof-section');
@@ -379,12 +387,12 @@
           notesSectionEdit.style.display='none';
         }
         
-        go('edit-order');
+        go('edit_order');
       }
     }
-    const deleteBtn=e.target.closest('[data-delete-order]');
+    const deleteBtn=e.target.closest('[data-delete_order]');
     if(deleteBtn){
-      const orderId=deleteBtn.dataset.deleteOrder;
+      const orderId=deleteBtn.dataset.delete_order;
       if(confirm(`هل أنت متأكد من حذف الطلب ${orderId}؟ لا يمكن التراجع عن هذا الإجراء.`)){
         const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
         if (error) {
@@ -454,13 +462,13 @@
     window.open(whatsappUrl, '_blank');
   });
 
-  $('#edit-order-form').addEventListener('submit',async e=>{
+  $('#edit_order_form').addEventListener('submit',async e=>{
     e.preventDefault();
     const form=e.currentTarget;
     if(!form.reportValidity())return;
     const data=Object.fromEntries(new FormData(form).entries());
-    const orderId=data.editOrderId;
-    delete data.editOrderId;
+    const orderId=data.edit_orderId;
+    delete data.edit_orderId;
 
     const o={
       customer: data.customer,

@@ -140,7 +140,7 @@
       }
 
       await loadOrders();
-      renderDriverOrders();
+      renderDriver();
       toast('تم تحديث الحالة بنجاح','success');
     }
 
@@ -168,7 +168,7 @@
       }
 
       await loadOrders();
-      renderDriverOrders();
+      renderDriver();
       toast('تم أرشفة الطلب بنجاح','success');
     }
 
@@ -196,20 +196,10 @@
       }
 
       await loadOrders();
-      renderDriverOrders();
+      renderDriver();
       toast('تم استعادة الطلب بنجاح','success');
     }
 
-      if (error) {
-        console.error('Error updating order:', error);
-        toast('حدث خطأ أثناء تحديث الحالة', 'error');
-        return;
-      }
-
-      renderDriver();
-      toast('تم تحديث حالة الطلب');
-      return;
-    }
     const a=e.target.closest('[data-address]');
     if(a){
       const o=orders.find(x=>x.id===a.dataset.address);
@@ -229,7 +219,6 @@
     output.textContent='جاري طلب إذن الموقع...';
     navigator.geolocation.getCurrentPosition(async pos=>{
       const loc={lat:pos.coords.latitude.toFixed(5),lng:pos.coords.longitude.toFixed(5),at:new Date().toISOString()};
-      const driverName = 'أحمد حسن';
       const driverOrders = orders.filter(o=>o.driver === driverName);
 
       for (const o of driverOrders) {
