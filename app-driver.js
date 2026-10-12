@@ -171,7 +171,6 @@
       output.textContent='جاري تفعيل التتبع التلقائي...';
       watchId=navigator.geolocation.watchPosition(async pos=>{
         const loc={lat:pos.coords.latitude.toFixed(5),lng:pos.coords.longitude.toFixed(5),at:new Date().toISOString()};
-        const driverName = 'أحمد حسن';
         const driverOrders = orders.filter(o=>o.driver === driverName);
 
         for (const o of driverOrders) {
