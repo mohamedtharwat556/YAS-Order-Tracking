@@ -30,9 +30,16 @@
     const auth = JSON.parse(localStorage.getItem('yas_auth') || '{}');
     driverName = auth.name || null;
 
+    console.log('Auth data:', auth);
+    console.log('Driver name from auth:', driverName);
+
     // Display driver name in header
-    if (driverName) {
-      $('#driver-name-display').textContent = `مرحباً، ${driverName}`;
+    const nameDisplay = document.getElementById('driver-name-display');
+    if (nameDisplay && driverName) {
+      nameDisplay.textContent = `مرحباً، ${driverName}`;
+      console.log('Updated name display to:', nameDisplay.textContent);
+    } else {
+      console.log('Name display element not found or no driver name');
     }
 
     if (!driverName) {
@@ -40,12 +47,13 @@
       return;
     }
 
-    console.log('Driver name:', driverName);
     console.log('All orders:', orders);
+    console.log('Orders count:', orders.length);
 
     const list=orders.filter(o=>o.driver === driverName);
 
     console.log('Filtered orders:', list);
+    console.log('Filtered orders count:', list.length);
     
     // Update stats
     $('#driver-total').textContent = list.length;
