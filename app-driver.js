@@ -190,7 +190,13 @@
     }
   });
 
+  console.log('Setting up photo upload listener...');
+  const uploadBtn = document.getElementById('upload-photo');
+  const photoInput = document.getElementById('delivery-photo');
+  console.log('Upload button:', uploadBtn, 'Photo input:', photoInput);
+
   $('#upload-photo').addEventListener('change',async e=>{
+    console.log('Photo upload button clicked!');
     const file=e.target.files[0];
     const orderId=$('#photo-order-select').value;
     console.log('Photo upload - File:', file, 'Order ID:', orderId);
