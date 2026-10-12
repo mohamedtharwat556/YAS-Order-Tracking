@@ -193,6 +193,8 @@
   $('#upload-photo').addEventListener('change',async e=>{
     const file=e.target.files[0];
     const orderId=$('#photo-order-select').value;
+    console.log('Photo upload - File:', file, 'Order ID:', orderId);
+    
     if(!file){
       toast('اختر صورة أولاً');
       return;
@@ -204,14 +206,18 @@
 
     try {
       const fileName=`${orderId}-${Date.now()}.jpg`;
+      console.log('Uploading photo with filename:', fileName);
+      
       const { data:uploadData, error:uploadError }=await supabaseClient
         .storage
         .from('delivery-photos')
         .upload(fileName, file);
 
+      console.log('Upload result:', uploadData, 'Error:', uploadError);
+
       if(uploadError){
         console.error('Error uploading photo:',uploadError);
-        toast('حدث خطأ أثناء رفع الصورة');
+        toast('حدث خطأ أثناء رفع الصورة: ' + uploadError.message);
         return;
       }
 
@@ -220,10 +226,12 @@
         .from('delivery-photos')
         .getPublicUrl(fileName);
 
+      console.log('Public URL:', publicUrlData);
+
       const { error }=await supabaseClient.from('orders').update({deliveryPhoto:publicUrlData.publicUrl}).eq('id',orderId);
       if(error){
         console.error('Error updating order:',error);
-        toast('حدث خطأ أثناء تحديث الطلب');
+        toast('حدث خطأ أثناء تحديث الطلب: ' + error.message);
         return;
       }
 
@@ -232,7 +240,7 @@
       $('#upload-result').textContent='تم رفع الصورة بنجاح';
     } catch(err){
       console.error('Error:',err);
-      toast('حدث خطأ غير متوقع');
+      toast('حدث خطأ غير متوقع: ' + err.message);
     }
   });
 
