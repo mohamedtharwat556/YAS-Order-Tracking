@@ -60,7 +60,7 @@
       btn.classList.remove('active');
       toast('عرض الطلبات النشطة', 'success');
     }
-    renderDriverOrders();
+    renderDriver();
   });
 
   function renderDriver(){
