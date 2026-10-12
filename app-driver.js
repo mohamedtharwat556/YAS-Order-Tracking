@@ -1,4 +1,5 @@
 (() => {
+  console.log('app-driver.js loaded');
   const today = new Date();
   const fmtDate = d => new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
   const fmtTime = d => new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
@@ -7,7 +8,12 @@
   let orders = [];
   let driverName = null;
 
+  console.log('Checking auth...');
+
   async function loadOrders() {
+    console.log('loadOrders called');
+    console.log('supabaseClient:', supabaseClient);
+
     const { data, error } = await supabaseClient
       .from('orders')
       .select('*')
@@ -18,6 +24,7 @@
       return;
     }
     orders = data || [];
+    console.log('Orders loaded:', orders.length);
     renderDriver();
   }
   const $ = s => document.querySelector(s);
@@ -320,4 +327,7 @@
       toast('حدث خطأ غير متوقع');
     }
   });
+
+  console.log('Starting loadOrders...');
+  loadOrders();
 })();
