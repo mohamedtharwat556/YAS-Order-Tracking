@@ -46,6 +46,8 @@
       const file = fileInput.files[0];
       const orderId = orderSelect.value;
 
+      console.log('Photo upload - File:', file, 'Order ID:', orderId);
+
       if (!file) {
         alert('اختر صورة أولاً');
         return;
@@ -58,10 +60,13 @@
       const reader = new FileReader();
       reader.onload = async () => {
         const base64 = reader.result;
+        console.log('Base64 length:', base64.length);
+        
         const { error } = await supabaseClient.from('orders').update({ deliveryPhoto: base64 }).eq('id', orderId);
         if (error) {
           console.error('Error uploading photo:', error);
-          alert('حدث خطأ أثناء رفع الصورة');
+          console.error('Error details:', JSON.stringify(error, null, 2));
+          alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
           return;
         }
         // Reload the page to show the updated order
