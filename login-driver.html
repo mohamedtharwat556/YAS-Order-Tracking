@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YAS | تسجيل دخول السائق</title><link rel="stylesheet" href="style.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+    .login-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .login-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body class="app-shell">
+  <main class="main full-width">
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 100;">
+      <button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button>
+    </div>
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="brand-mark" style="font-size: 2rem; margin-bottom: 0.5rem;">Y</div>
+          <h1>YAS Driver</h1>
+          <p class="muted">تسجيل دخول السائق</p>
+        </div>
+        <form id="login-form" class="form-layout">
+          <label>البريد الإلكتروني <input name="email" type="email" required placeholder="email@example.com" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"></label>
+          <label>كلمة المرور <input name="password" type="password" required placeholder="••••••••" minlength="6"></label>
+          <button class="btn primary full-width" type="submit">تسجيل الدخول</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    const drivers = [
+      { email: 'nasser@yas.com', password: 'nasser123', redirect: 'driver.html', name: 'ناصر اسلام' },
+      { email: 'ibrahim@yas.com', password: 'ibrahim123', redirect: 'driver.html', name: 'ابراهيم ذكري' },
+      { email: 'amr@yas.com', password: 'amr123', redirect: 'driver.html', name: 'عمرو حرحش' },
+      { email: 'gomaa@yas.com', password: 'gomaa123', redirect: 'driver.html', name: 'جمعة السيد' }
+    ];
+
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      const driver = drivers.find(d => d.email === data.email && d.password === data.password);
+      if (driver) {
+        localStorage.setItem('yas_auth', JSON.stringify({ role: 'driver', email: data.email, name: driver.name }));
+        window.location.href = driver.redirect;
+      } else {
+        toast('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      }
+    });
+
+    // Check if already logged in
+    const auth = localStorage.getItem('yas_auth');
+    if (auth) {
+      const { role } = JSON.parse(auth);
+      if (role === 'driver') {
+        window.location.href = 'driver.html';
+      }
+    }
+  </script>
+</body>
+</html>
