@@ -195,3 +195,119 @@ table td small {
   color: var(--navy);
 }
 
+/* Lucide Icons Styling */
+.nav-item i,
+.icon-btn i {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+/* Accessibility Improvements */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Better Touch Targets on Mobile */
+@media (max-width: 768px) {
+  button,
+  .nav-item {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .nav-item {
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .nav-item i {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Driver Rating System */
+.driver-rating {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--blue2);
+  border-radius: 12px;
+}
+
+.driver-rating h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--navy);
+}
+
+.rating-stars {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.star-btn:hover,
+.star-btn.selected {
+  color: #f59e0b;
+}
+
+.driver-rating-display {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--greenbg);
+  border-radius: 12px;
+}
+
+.driver-rating-display h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--green);
+}
+
+.rating-stars-display {
+  font-size: 32px;
+  color: #f59e0b;
+}
+

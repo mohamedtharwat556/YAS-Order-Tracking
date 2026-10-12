@@ -13,6 +13,42 @@
     document.body.appendChild(modal);
   };
 
+  // Initialize Lucide icons
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+  });
+
+  // Driver rating functionality
+  window.submitDriverRating = async function(orderId) {
+    const selectedRating = document.querySelector(`.rating-stars[data-order-id="${orderId}"] .star-btn.selected`);
+    if (!selectedRating) {
+      toast('الرجاء اختيار تقييم');
+      return;
+    }
+    const rating = parseInt(selectedRating.dataset.rating);
+    const { error } = await supabaseClient.from('orders').update({ driverrating: rating }).eq('id', orderId);
+    if (error) {
+      console.error('Error submitting rating:', error);
+      toast('حدث خطأ أثناء إرسال التقييم');
+      return;
+    }
+    toast('تم إرسال التقييم بنجاح');
+    await loadOrders();
+    const o = orders.find(x => x.id === orderId);
+    if (o) showTracking(o);
+  };
+
+  // Handle star button clicks
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('star-btn')) {
+      const rating = e.target.dataset.rating;
+      const container = e.target.closest('.rating-stars');
+      container.querySelectorAll('.star-btn').forEach((btn, index) => {
+        btn.classList.toggle('selected', index < rating);
+      });
+    }
+  });
+
   let orders = [];
   async function loadOrders() {
     const { data, error } = await supabaseClient
@@ -32,7 +68,8 @@
       paymentMethod: o.paymentmethod || o.paymentMethod,
       paymentStatus: o.paymentstatus || o.paymentStatus,
       receivedAt: o.receivedat || o.receivedAt,
-      deliveryPhoto: o.deliveryphoto || o.deliveryPhoto
+      deliveryPhoto: o.deliveryphoto || o.deliveryPhoto,
+      driverRating: o.driverrating || o.driverRating
     }));
   }
   
@@ -49,7 +86,9 @@
     <div class="timeline">${stepNames.map((s,i)=>{const complete=idx>=i&&o.status!=='تعذر التسليم',current=idx===i;return `<div class="timeline-step ${complete?'complete':''} ${current?'current':''}"><div class="timeline-dot">${i===idx?`<div class="timeline-car"></div>`:i+1}</div><b>${s}</b></div>`;}).join('')}</div>
     ${o.status==='تعذر التسليم'?'<p class="danger">تعذر تسليم الطلب. برجاء التواصل مع فريق خدمة العملاء.</p>':''}
     <div class="tracking-details"><div><small>الجهاز</small><b>${esc(o.devicetype)} · ${esc(o.brand)}</b></div><div><small>طريقة الدفع</small><b>${esc(o.paymentmethod)}</b></div><div><small>تاريخ الطلب</small><b>${fmtDate(o.receivedat)}</b></div><div><small>العنوان</small><b>${esc(o.address)}</b></div><div><small>السائق</small><b>${esc(o.driver||'سيتم تحديده')}</b></div>${o.driverphone?`<div><small>رقم السائق</small><b><a href="tel:${esc(o.driverphone)}">${esc(o.driverphone)}</a></b></div>`:''}<div><small>آخر موقع مُسجل</small><b>${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)}`:'لا يوجد تحديث موقع حتى الآن'}</b></div></div>
-    ${o.location?`<p class="muted">آخر تحديث يدوي لموقع السائق: ${fmtTime(o.location.at)} · <a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(o.location.lat+','+o.location.lng)}">عرض الموقع على الخريطة</a></p>`:''}`;
+    ${o.location?`<p class="muted">آخر تحديث يدوي لموقع السائق: ${fmtTime(o.location.at)} · <a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(o.location.lat+','+o.location.lng)}">عرض الموقع على الخريطة</a></p>`:''}
+    ${o.status==='تم التوصيل'&&!o.driverRating?`<div class="driver-rating"><h3>قيّم السائق</h3><div class="rating-stars" data-order-id="${esc(o.id)}">${[1,2,3,4,5].map(i=>`<button class="star-btn" data-rating="${i}" aria-label="${i} نجوم">★</button>`).join('')}</div><button class="btn primary" onclick="submitDriverRating('${esc(o.id)}')">إرسال التقييم</button></div>`:''}
+    ${o.driverRating?`<div class="driver-rating-display"><h3>تقييم السائق</h3><div class="rating-stars-display">${'★'.repeat(o.driverRating)}${'☆'.repeat(5-o.driverRating)}</div></div>`:''}`;
   }
   
   // Check if order ID is in URL query

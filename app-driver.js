@@ -14,6 +14,11 @@
     document.body.appendChild(modal);
   };
 
+  // Initialize Lucide icons
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+  });
+
   let orders = [];
   let driverName = null;
 
