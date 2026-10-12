@@ -9,17 +9,39 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    .video-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
     }
     .login-container {
       max-width: 500px;
       width: 100%;
       padding: 2rem;
+      position: relative;
+      z-index: 1;
     }
     .login-card {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 16px;
       padding: 3rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .login-header {
       text-align: center;
@@ -43,6 +65,10 @@
   </style>
 </head>
 <body class="app-shell">
+  <video class="video-background" autoplay muted loop playsinline>
+    <source src="Sales_team_video_prompt_20261012090914.mp4" type="video/mp4">
+  </video>
+  <div class="video-overlay"></div>
   <main class="main full-width" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
     <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
       <button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button>
