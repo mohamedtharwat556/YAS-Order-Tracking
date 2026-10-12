@@ -167,3 +167,16 @@ table td small {
   transition: left 0.5s ease;
 }
 
+.delivery-proof {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--blue2);
+  border-radius: 12px;
+}
+
+.delivery-proof h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--navy);
+}
+
