@@ -190,17 +190,9 @@
     }
   });
 
-  console.log('Setting up photo upload listener...');
-  const uploadBtn = document.getElementById('upload-photo');
-  const photoInput = document.getElementById('delivery-photo');
-  console.log('Upload button:', uploadBtn, 'Photo input:', photoInput);
-
   $('#upload-photo').addEventListener('change',async e=>{
-    console.log('Photo upload button clicked!');
     const file=e.target.files[0];
     const orderId=$('#photo-order-select').value;
-    console.log('Photo upload - File:', file, 'Order ID:', orderId);
-    
     if(!file){
       toast('اختر صورة أولاً');
       return;
@@ -209,45 +201,20 @@
       toast('اختر طلباً أولاً');
       return;
     }
-
-    try {
-      const fileName=`${orderId}-${Date.now()}.jpg`;
-      console.log('Uploading photo with filename:', fileName);
-      
-      const { data:uploadData, error:uploadError }=await supabaseClient
-        .storage
-        .from('delivery-photos')
-        .upload(fileName, file);
-
-      console.log('Upload result:', uploadData, 'Error:', uploadError);
-
-      if(uploadError){
-        console.error('Error uploading photo:',uploadError);
-        toast('حدث خطأ أثناء رفع الصورة: ' + uploadError.message);
-        return;
-      }
-
-      const { data:publicUrlData }=supabaseClient
-        .storage
-        .from('delivery-photos')
-        .getPublicUrl(fileName);
-
-      console.log('Public URL:', publicUrlData);
-
-      const { error }=await supabaseClient.from('orders').update({deliveryPhoto:publicUrlData.publicUrl}).eq('id',orderId);
+    const reader=new FileReader();
+    reader.onload=async ()=>{
+      const base64=reader.result;
+      const { error }=await supabaseClient.from('orders').update({deliveryPhoto:base64}).eq('id',orderId);
       if(error){
-        console.error('Error updating order:',error);
-        toast('حدث خطأ أثناء تحديث الطلب: ' + error.message);
+        console.error('Error uploading photo:',error);
+        toast('حدث خطأ أثناء رفع الصورة');
         return;
       }
-
       await loadOrders();
       toast('تم رفع الصورة بنجاح');
       $('#upload-result').textContent='تم رفع الصورة بنجاح';
-    } catch(err){
-      console.error('Error:',err);
-      toast('حدث خطأ غير متوقع: ' + err.message);
-    }
+    };
+    reader.readAsDataURL(file);
   });
 
   // Signature canvas functionality
@@ -314,42 +281,17 @@
       toast('اختر طلباً أولاً');
       return;
     }
-
-    try {
-      canvas.toBlob(async blob=>{
-        const fileName=`${orderId}-signature-${Date.now()}.png`;
-        const { data:uploadData, error:uploadError }=await supabaseClient
-          .storage
-          .from('delivery-photos')
-          .upload(fileName, blob);
-
-        if(uploadError){
-          console.error('Error uploading signature:',uploadError);
-          toast('حدث خطأ أثناء رفع التوقيع');
-          return;
-        }
-
-        const { data:publicUrlData }=supabaseClient
-          .storage
-          .from('delivery-photos')
-          .getPublicUrl(fileName);
-
-        const { error }=await supabaseClient.from('orders').update({signature:publicUrlData.publicUrl}).eq('id',orderId);
-        if(error){
-          console.error('Error updating order:',error);
-          toast('حدث خطأ أثناء تحديث الطلب');
-          return;
-        }
-
-        await loadOrders();
-        toast('تم حفظ التوقيع بنجاح');
-        $('#signature-result').textContent='تم حفظ التوقيع بنجاح';
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-      }, 'image/png');
-    } catch(err){
-      console.error('Error:',err);
-      toast('حدث خطأ غير متوقع');
+    const signatureData=canvas.toDataURL();
+    const { error }=await supabaseClient.from('orders').update({signature:signatureData}).eq('id',orderId);
+    if(error){
+      console.error('Error saving signature:',error);
+      toast('حدث خطأ أثناء حفظ التوقيع');
+      return;
     }
+    await loadOrders();
+    toast('تم حفظ التوقيع بنجاح');
+    $('#signature-result').textContent='تم حفظ التوقيع بنجاح';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
   });
 
   console.log('Starting loadOrders...');
