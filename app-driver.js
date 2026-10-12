@@ -44,7 +44,7 @@
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
 
-  function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);}
+  function toast(message, type = 'success'){const el=$('#toast');el.textContent=message;el.className='toast show ' + type;setTimeout(()=>el.classList.remove('show'),3000);}
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};return `<span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span>`;}
 
   function renderDriver(){
@@ -118,7 +118,7 @@
 
       if (error) {
         console.error('Error updating order:', error);
-        toast('حدث خطأ أثناء تحديث الحالة');
+        toast('حدث خطأ أثناء تحديث الحالة', 'error');
         return;
       }
 
@@ -139,7 +139,7 @@
     const output=$('#location-result');
     if(!navigator.geolocation){
       output.textContent='المتصفح لا يدعم تحديد الموقع.';
-      toast('ميزة الموقع غير مدعومة');
+      toast('ميزة الموقع غير مدعومة', 'warning');
       return;
     }
     output.textContent='جاري طلب إذن الموقع...';
@@ -170,7 +170,7 @@
       if(!navigator.geolocation){
         output.textContent='المتصفح لا يدعم تحديد الموقع.';
         e.target.checked=false;
-        toast('ميزة الموقع غير مدعومة');
+        toast('ميزة الموقع غير مدعومة', 'warning');
         return;
       }
       output.textContent='جاري تفعيل التتبع التلقائي...';
@@ -207,11 +207,11 @@
     const file=e.target.files[0];
     const orderId=$('#photo-order-select').value;
     if(!file){
-      toast('اختر صورة أولاً');
+      toast('اختر صورة أولاً', 'warning');
       return;
     }
     if(!orderId){
-      toast('اختر طلباً أولاً');
+      toast('اختر طلباً أولاً', 'warning');
       return;
     }
     const reader=new FileReader();
@@ -220,7 +220,7 @@
       const { error }=await supabaseClient.from('orders').update({deliveryPhoto:base64}).eq('id',orderId);
       if(error){
         console.error('Error uploading photo:',error);
-        toast('حدث خطأ أثناء رفع الصورة');
+        toast('حدث خطأ أثناء رفع الصورة', 'error');
         return;
       }
       await loadOrders();
@@ -291,14 +291,14 @@
   $('#save-signature').addEventListener('click',async ()=>{
     const orderId=$('#signature-order-select').value;
     if(!orderId){
-      toast('اختر طلباً أولاً');
+      toast('اختر طلباً أولاً', 'warning');
       return;
     }
     const signatureData=canvas.toDataURL();
     const { error }=await supabaseClient.from('orders').update({signature:signatureData}).eq('id',orderId);
     if(error){
       console.error('Error saving signature:',error);
-      toast('حدث خطأ أثناء حفظ التوقيع');
+      toast('حدث خطأ أثناء حفظ التوقيع', 'error');
       return;
     }
     await loadOrders();

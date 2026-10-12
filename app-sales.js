@@ -40,12 +40,39 @@
   }
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
-  function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);}
+  function toast(message, type = 'success'){const el=$('#toast');el.textContent=message;el.className='toast show ' + type;setTimeout(()=>el.classList.remove('show'),3000);}
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};const carPositions={'تم طلبه':'0%','تم الشحن':'25%','خرج للتوصيل':'50%','تم التوصيل':'75%','تعذر التسليم':'100%'};return `<div class="status-container"><span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span><div class="status-track"><div class="status-car" style="left: ${carPositions[status]||'0%'}"></div></div></div>`;}
   
   // Initialize Lucide icons
   document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
+    
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    
+    if (mobileMenuToggle && sidebar && sidebarOverlay) {
+      mobileMenuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        sidebarOverlay.classList.toggle('active');
+      });
+      
+      sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('active');
+      });
+    }
+    
+    // Advanced filters toggle
+    const toggleAdvancedFilters = document.getElementById('toggle-advanced-filters');
+    const advancedFilters = document.getElementById('advanced-filters');
+    
+    if (toggleAdvancedFilters && advancedFilters) {
+      toggleAdvancedFilters.addEventListener('click', () => {
+        advancedFilters.classList.toggle('active');
+      });
+    }
   });
   function go(view){$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${view}`));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));const titles={dashboard:'لوحة الإحصائيات',sales:'لوحة إدارة الطلبات','new-order':'إنشاء طلب جديد','edit-order':'تعديل الطلب'};$('#page-title').textContent=titles[view]||'YAS';if(view==='sales')renderSales();if(view==='new-order')setReceivedAt();if(view==='dashboard')renderDashboard();}
   function setReceivedAt(){const el=$('#received-at');if(el&&!el.value){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());el.value=d.toISOString().slice(0,16);}}
@@ -58,11 +85,30 @@
     const statusFilter=$('#status-filter').value;
     const paymentFilter=$('#payment-filter').value;
     const driverFilter=$('#driver-filter').value;
+    
+    // Advanced filters
+    const dateFrom=$('#filter-date-from').value;
+    const dateTo=$('#filter-date-to').value;
+    const multipleStatus=$('#filter-multiple-status').selectedOptions;
+    const multipleStatusValues=Array.from(multipleStatus).map(opt=>opt.value);
+    
     const filtered=orders.filter(o=>{
       const matchesSearch=!q||[o.id,o.customer,o.phone,o.brand].some(v=>String(v||'').toLowerCase().includes(q));
       const matchesStatus=!statusFilter||o.status===statusFilter;
       const matchesPayment=!paymentFilter||o.paymentmethod===paymentFilter;
       const matchesDriver=!driverFilter||o.driver===driverFilter;
+      
+      // Advanced filters
+      let matchesDateRange=true;
+      if(dateFrom||dateTo){
+        const orderDate=new Date(o.receivedat);
+        if(dateFrom) matchesDateRange=matchesDateRange&&orderDate>=new Date(dateFrom);
+        if(dateTo) matchesDateRange=matchesDateRange&&orderDate<=new Date(dateTo+'T23:59:59');
+      }
+      
+      const matchesMultipleStatus=multipleStatusValues.length===0||multipleStatusValues.includes(o.status);
+      
+      return matchesSearch&&matchesStatus&&matchesPayment&&matchesDriver&&matchesDateRange&&matchesMultipleStatus;
       return matchesSearch&&matchesStatus&&matchesPayment&&matchesDriver;
     });
     $('#orders-table').innerHTML=filtered.map(o=>{
@@ -161,12 +207,19 @@
   $('#status-filter').addEventListener('change',renderSales);
   $('#payment-filter').addEventListener('change',renderSales);
   $('#driver-filter').addEventListener('change',renderSales);
+  $('#filter-date-from').addEventListener('change',renderSales);
+  $('#filter-date-to').addEventListener('change',renderSales);
+  $('#filter-multiple-status').addEventListener('change',renderSales);
   $('#clear-filters').addEventListener('click',()=>{
     $('#order-search').value='';
     $('#status-filter').value='';
     $('#payment-filter').value='';
     $('#driver-filter').value='';
+    $('#filter-date-from').value='';
+    $('#filter-date-to').value='';
+    $('#filter-multiple-status').selectedOptions.forEach(opt=>opt.selected=false);
     renderSales();
+    toast('تم مسح جميع الفلاتر', 'success');
   });
 
   $('#export-excel').addEventListener('click',()=>{
@@ -183,7 +236,7 @@
     });
 
     if(filtered.length===0){
-      toast('لا توجد طلبات للتصدير');
+      toast('لا توجد طلبات للتصدير', 'warning');
       return;
     }
 
@@ -214,13 +267,13 @@
   $('#bulk-update').addEventListener('click',async ()=>{
     const selectedIds=[...document.querySelectorAll('.order-checkbox:checked')].map(cb=>cb.dataset.id);
     if(selectedIds.length===0){
-      toast('اختر طلبات على الأقل للتحديث');
+      toast('اختر طلبات على الأقل للتحديث', 'warning');
       return;
     }
     const newStatus=prompt('اختر الحالة الجديدة:\n\n1. تم طلبه\n2. تم الشحن\n3. خرج للتوصيل\n4. تم التوصيل\n5. تعذر التسليم\n\nأدخل الرقم:');
     const statusMap={'1':'تم طلبه','2':'تم الشحن','3':'خرج للتوصيل','4':'تم التوصيل','5':'تعذر التسليم'};
     if(!newStatus||!statusMap[newStatus]){
-      toast('اختيار غير صحيح');
+      toast('اختيار غير صحيح', 'error');
       return;
     }
     const selectedStatus=statusMap[newStatus];
@@ -252,7 +305,7 @@
     const b=e.target.closest('[data-copy-link]');
     if(b){
       const link=b.dataset.copyLink;
-      navigator.clipboard.writeText(link).then(()=>toast('تم نسخ رابط التتبع ✓')).catch(()=>toast('خطأ في النسخ'));
+      navigator.clipboard.writeText(link).then(()=>toast('تم نسخ رابط التتبع ✓')).catch(()=>toast('خطأ في النسخ', 'error'));
     }
     const editBtn=e.target.closest('[data-edit-order]');
     if(editBtn){
@@ -318,7 +371,7 @@
         const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
         if (error) {
           console.error('Error deleting order:', error);
-          toast('حدث خطأ أثناء حذف الطلب');
+          toast('حدث خطأ أثناء حذف الطلب', 'error');
           return;
         }
         await loadOrders();
@@ -366,7 +419,7 @@
     if (error) {
       console.error('Error creating order:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
-      toast('حدث خطأ أثناء حفظ الطلب: ' + error.message);
+      toast('حدث خطأ أثناء حفظ الطلب: ' + error.message, 'error');
       return;
     }
 
@@ -413,7 +466,7 @@
     if (error) {
       console.error('Error updating order:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
-      toast('حدث خطأ أثناء تحديث الطلب: ' + error.message);
+      toast('حدث خطأ أثناء تحديث الطلب: ' + error.message, 'error');
       return;
     }
 

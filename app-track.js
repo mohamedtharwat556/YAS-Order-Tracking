@@ -22,14 +22,14 @@
   window.submitDriverRating = async function(orderId) {
     const selectedRating = document.querySelector(`.rating-stars[data-order-id="${orderId}"] .star-btn.selected`);
     if (!selectedRating) {
-      toast('الرجاء اختيار تقييم');
+      toast('الرجاء اختيار تقييم', 'warning');
       return;
     }
     const rating = parseInt(selectedRating.dataset.rating);
     const { error } = await supabaseClient.from('orders').update({ driverrating: rating }).eq('id', orderId);
     if (error) {
       console.error('Error submitting rating:', error);
-      toast('حدث خطأ أثناء إرسال التقييم');
+      toast('حدث خطأ أثناء إرسال التقييم', 'error');
       return;
     }
     toast('تم إرسال التقييم بنجاح');
@@ -55,17 +55,17 @@
   window.saveCustomerNotes = async function() {
     const notes = document.getElementById('customer-notes').value;
     if (!notes.trim()) {
-      toast('الرجاء كتابة ملاحظات');
+      toast('الرجاء كتابة ملاحظات', 'warning');
       return;
     }
     if (!currentOrderId) {
-      toast('حدث خطأ: لم يتم تحديد الطلب');
+      toast('حدث خطأ: لم يتم تحديد الطلب', 'error');
       return;
     }
     const { error } = await supabaseClient.from('orders').update({ customernotes: notes }).eq('id', currentOrderId);
     if (error) {
       console.error('Error saving customer notes:', error);
-      toast('حدث خطأ أثناء إرسال الملاحظات');
+      toast('حدث خطأ أثناء إرسال الملاحظات', 'error');
       return;
     }
     toast('تم إرسال الملاحظات بنجاح');
@@ -99,7 +99,7 @@
   
   const $ = s => document.querySelector(s);
   
-  function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);}
+  function toast(message, type = 'success'){const el=$('#toast');el.textContent=message;el.className='toast show ' + type;setTimeout(()=>el.classList.remove('show'),3000);}
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};const carPositions={'تم طلبه':'0%','تم الشحن':'25%','خرج للتوصيل':'50%','تم التوصيل':'75%','تعذر التسليم':'100%'};return `<div class="status-container"><span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span><div class="status-track"><div class="status-car" style="left: ${carPositions[status]||'0%'}"></div></div></div>`;}
   
   function showTracking(o){
