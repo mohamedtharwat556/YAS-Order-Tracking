@@ -4,30 +4,47 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>YAS | تسجيل دخول السائق</title><link rel="stylesheet" href="style.css">
   <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
     .login-container {
-      max-width: 400px;
-      margin: 10vh auto;
+      max-width: 500px;
+      width: 100%;
       padding: 2rem;
     }
     .login-card {
       background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      padding: 3rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     .login-header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
     .login-header h1 {
-      font-size: 1.5rem;
+      font-size: 2rem;
       margin-bottom: 0.5rem;
+    }
+    .form-layout label {
+      margin-bottom: 1.5rem;
+    }
+    .form-layout input {
+      padding: 12px;
+      font-size: 16px;
+    }
+    .btn {
+      padding: 14px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body class="app-shell">
-  <main class="main full-width">
-    <div style="position: fixed; top: 20px; left: 20px; z-index: 100;">
+  <main class="main full-width" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
       <button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button>
     </div>
     <div class="login-container">
