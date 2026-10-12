@@ -62,7 +62,7 @@
         const base64 = reader.result;
         console.log('Base64 length:', base64.length);
         
-        const { error } = await supabaseClient.from('orders').update({ deliveryPhoto: base64 }).eq('id', orderId);
+        const { error } = await supabaseClient.from('orders').update({ deliveryphoto: base64 }).eq('id', orderId);
         if (error) {
           console.error('Error uploading photo:', error);
           console.error('Error details:', JSON.stringify(error, null, 2));
