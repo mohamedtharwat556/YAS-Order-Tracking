@@ -139,3 +139,31 @@ table td small {
   font-size: 11px;
 }
 
+.status-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-track {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(to left, #e5ebf3 0%, #e5ebf3 100%);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.status-car {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-image: url('designforcars_new.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: left 0.5s ease;
+}
+
