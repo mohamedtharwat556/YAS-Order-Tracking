@@ -29,13 +29,23 @@
   function renderDriver(){
     const auth = JSON.parse(localStorage.getItem('yas_auth') || '{}');
     driverName = auth.name || null;
-    
+
+    // Display driver name in header
+    if (driverName) {
+      $('#driver-name-display').textContent = `مرحباً، ${driverName}`;
+    }
+
     if (!driverName) {
       $('#driver-orders').innerHTML = '<div class="panel">الرجاء تسجيل الدخول أولاً</div>';
       return;
     }
-    
+
+    console.log('Driver name:', driverName);
+    console.log('All orders:', orders);
+
     const list=orders.filter(o=>o.driver === driverName);
+
+    console.log('Filtered orders:', list);
     
     // Update stats
     $('#driver-total').textContent = list.length;
