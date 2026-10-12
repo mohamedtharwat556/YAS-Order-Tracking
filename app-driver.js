@@ -157,20 +157,39 @@
       toast('اختر طلباً أولاً');
       return;
     }
-    const reader=new FileReader();
-    reader.onload=async ()=>{
-      const base64=reader.result;
-      const { error }=await supabaseClient.from('orders').update({deliveryPhoto:base64}).eq('id',orderId);
-      if(error){
-        console.error('Error uploading photo:',error);
+
+    try {
+      const fileName=`${orderId}-${Date.now()}.jpg`;
+      const { data:uploadData, error:uploadError }=await supabaseClient
+        .storage
+        .from('delivery-photos')
+        .upload(fileName, file);
+
+      if(uploadError){
+        console.error('Error uploading photo:',uploadError);
         toast('حدث خطأ أثناء رفع الصورة');
         return;
       }
+
+      const { data:publicUrlData }=supabaseClient
+        .storage
+        .from('delivery-photos')
+        .getPublicUrl(fileName);
+
+      const { error }=await supabaseClient.from('orders').update({deliveryPhoto:publicUrlData.publicUrl}).eq('id',orderId);
+      if(error){
+        console.error('Error updating order:',error);
+        toast('حدث خطأ أثناء تحديث الطلب');
+        return;
+      }
+
       await loadOrders();
       toast('تم رفع الصورة بنجاح');
       $('#upload-result').textContent='تم رفع الصورة بنجاح';
-    };
-    reader.readAsDataURL(file);
+    } catch(err){
+      console.error('Error:',err);
+      toast('حدث خطأ غير متوقع');
+    }
   });
 
   // Signature canvas functionality
@@ -237,16 +256,41 @@
       toast('اختر طلباً أولاً');
       return;
     }
-    const signatureData=canvas.toDataURL();
-    const { error }=await supabaseClient.from('orders').update({signature:signatureData}).eq('id',orderId);
-    if(error){
-      console.error('Error saving signature:',error);
-      toast('حدث خطأ أثناء حفظ التوقيع');
-      return;
+
+    try {
+      canvas.toBlob(async blob=>{
+        const fileName=`${orderId}-signature-${Date.now()}.png`;
+        const { data:uploadData, error:uploadError }=await supabaseClient
+          .storage
+          .from('delivery-photos')
+          .upload(fileName, blob);
+
+        if(uploadError){
+          console.error('Error uploading signature:',uploadError);
+          toast('حدث خطأ أثناء رفع التوقيع');
+          return;
+        }
+
+        const { data:publicUrlData }=supabaseClient
+          .storage
+          .from('delivery-photos')
+          .getPublicUrl(fileName);
+
+        const { error }=await supabaseClient.from('orders').update({signature:publicUrlData.publicUrl}).eq('id',orderId);
+        if(error){
+          console.error('Error updating order:',error);
+          toast('حدث خطأ أثناء تحديث الطلب');
+          return;
+        }
+
+        await loadOrders();
+        toast('تم حفظ التوقيع بنجاح');
+        $('#signature-result').textContent='تم حفظ التوقيع بنجاح';
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+      }, 'image/png');
+    } catch(err){
+      console.error('Error:',err);
+      toast('حدث خطأ غير متوقع');
     }
-    await loadOrders();
-    toast('تم حفظ التوقيع بنجاح');
-    $('#signature-result').textContent='تم حفظ التوقيع بنجاح';
-    ctx.clearRect(0,0,canvas.width,canvas.height);
   });
 })();
