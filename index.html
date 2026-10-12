@@ -58,7 +58,7 @@
           <input id="order-search" placeholder="ابحث عن طلب..." aria-label="البحث عن طلب">
           <select id="status-filter"><option value="">كل الحالات</option><option>تم طلبه</option><option>تم الشحن</option><option>خرج للتوصيل</option><option>تم التوصيل</option><option>تعذر التسليم</option></select>
           <select id="payment-filter"><option value="">كل طرق الدفع</option><option>كاش</option><option>عند الاستلام</option><option>تحويل بنكي</option><option>اتفاق بين السيلز والعميل</option></select>
-          <select id="driver-filter"><option value="">كل السائقين</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select>
+          <select id="driver-filter"><option value="">كل السائقين</option><option>ناصر اسلام</option><option>ابراهيم ذكري</option><option>عمرو حرحش</option><option>جمعة السيد</option></select>
           <button class="btn secondary" id="clear-filters">مسح الفلاتر</button>
         </div></div>
         <div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="select-all"></th><th>رقم الطلب</th><th>العميل</th><th>الهاتف</th><th>العنوان</th><th>الجهاز</th><th>الكمية</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th>التسليم</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
@@ -90,7 +90,7 @@
           <div class="field-grid">
             <label>طريقة الدفع <em>*</em><select name="paymentMethod" required><option>كاش</option><option>عند الاستلام</option><option>تحويل بنكي</option><option>اتفاق بين السيلز والعميل</option></select></label>
             <label>حالة الدفع <em>*</em><select name="paymentStatus" required><option>غير مدفوع</option><option>مدفوع</option><option>مدفوع جزئيًا</option></select></label>
-            <label>السائق المسؤول <em>*</em><select name="driver" required><option value="">اختار السائق</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select></label>
+            <label>السائق المسؤول <em>*</em><select name="driver" required><option value="">اختار السائق</option><option>ناصر اسلام</option><option>ابراهيم ذكري</option><option>عمرو حرحش</option><option>جمعة السيد</option></select></label>
             <label>تاريخ استلام الطلب <input name="receivedAt" type="datetime-local" id="edit-received-at" required></label>
             <label class="full">ملاحظات إضافية <textarea name="notes" rows="2" placeholder="ملاحظات للسيلز أو السائق"></textarea></label>
           </div>
@@ -127,7 +127,7 @@
           <div class="field-grid">
             <label>طريقة الدفع <em>*</em><select name="paymentMethod" required><option>كاش</option><option>عند الاستلام</option><option>تحويل بنكي</option><option>اتفاق بين السيلز والعميل</option></select></label>
             <label>حالة الدفع <em>*</em><select name="paymentStatus" required><option>غير مدفوع</option><option>مدفوع</option><option>مدفوع جزئيًا</option></select></label>
-            <label>السائق المسؤول <em>*</em><select name="driver" required><option value="">اختار السائق</option><option>أحمد حسن</option><option>محمود علي</option><option>محمد سمير</option></select></label>
+            <label>السائق المسؤول <em>*</em><select name="driver" required><option value="">اختار السائق</option><option>ناصر اسلام</option><option>ابراهيم ذكري</option><option>عمرو حرحش</option><option>جمعة السيد</option></select></label>
             <label>تاريخ استلام الطلب <input name="receivedAt" type="datetime-local" id="received-at" required></label>
             <label class="full">ملاحظات إضافية <textarea name="notes" rows="2" placeholder="ملاحظات للسيلز أو السائق"></textarea></label>
           </div>

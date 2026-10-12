@@ -84,8 +84,13 @@
     });
 
     const users = {
-      sales: { email: 'sales@yas.com', password: 'sales123', redirect: 'index.html' },
-      driver: { email: 'driver@yas.com', password: 'driver123', redirect: 'driver.html' }
+      sales: { email: 'sales@yas.com', password: 'sales123', redirect: 'index.html', name: 'المبيعات' },
+      driver: [
+        { email: 'nasser@yas.com', password: 'nasser123', redirect: 'driver.html', name: 'ناصر اسلام' },
+        { email: 'ibrahim@yas.com', password: 'ibrahim123', redirect: 'driver.html', name: 'ابراهيم ذكري' },
+        { email: 'amr@yas.com', password: 'amr123', redirect: 'driver.html', name: 'عمرو حرحش' },
+        { email: 'gomaa@yas.com', password: 'gomaa123', redirect: 'driver.html', name: 'جمعة السيد' }
+      ]
     };
 
     let selectedRole = 'sales';
@@ -109,13 +114,23 @@
       e.preventDefault();
       const form = e.target;
       const data = Object.fromEntries(new FormData(form).entries());
-      const user = users[selectedRole];
 
-      if (data.email === user.email && data.password === user.password) {
-        localStorage.setItem('yas_auth', JSON.stringify({ role: selectedRole, email: data.email }));
-        window.location.href = user.redirect;
-      } else {
-        toast('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      if (selectedRole === 'sales') {
+        const user = users.sales;
+        if (data.email === user.email && data.password === user.password) {
+          localStorage.setItem('yas_auth', JSON.stringify({ role: selectedRole, email: data.email, name: user.name }));
+          window.location.href = user.redirect;
+        } else {
+          toast('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        }
+      } else if (selectedRole === 'driver') {
+        const driver = users.driver.find(d => d.email === data.email && d.password === data.password);
+        if (driver) {
+          localStorage.setItem('yas_auth', JSON.stringify({ role: selectedRole, email: data.email, name: driver.name }));
+          window.location.href = driver.redirect;
+        } else {
+          toast('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        }
       }
     });
 
