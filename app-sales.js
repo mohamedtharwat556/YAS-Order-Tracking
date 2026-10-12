@@ -32,7 +32,8 @@
       paymentMethod: o.paymentmethod || o.paymentMethod,
       paymentStatus: o.paymentstatus || o.paymentStatus,
       receivedAt: o.receivedat || o.receivedAt,
-      driverRating: o.driverrating || o.driverRating
+      driverRating: o.driverrating || o.driverRating,
+      customerNotes: o.customernotes || o.customerNotes
     }));
     renderSales();
     return orders;
@@ -69,7 +70,8 @@
       const deliveryphotoHtml=o.deliveryphoto?`<img src="${o.deliveryphoto}" alt="صورة" onclick="showImageModal('${o.deliveryphoto}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;margin-right:3px;" title="صورة التسليم">`:'';
       const signatureHtml=o.signature?`<img src="${o.signature}" alt="توقيع" onclick="showImageModal('${o.signature}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;" title="التوقيع">`:'';
       const ratingHtml=o.driverRating?`<span style="color:#f59e0b;font-size:16px;">${'★'.repeat(o.driverRating)}</span>`:'-';
-      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
+      const notesHtml=o.customerNotes?`<span style="color:var(--muted);font-size:12px;max-width:100px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.customerNotes)}">${esc(o.customerNotes)}</span>`:'-';
+      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -294,6 +296,16 @@
           ratingContainer.innerHTML=`<label>تقييم السائق<br><span style="color:#f59e0b;font-size:24px;">${'★'.repeat(o.driverRating)}${'☆'.repeat(5-o.driverRating)}</span></label>`;
         }else{
           ratingSection.style.display='none';
+        }
+
+        // Show customer notes if exists
+        const notesSectionEdit=$('#customer-notes-section-edit');
+        const notesContainerEdit=$('#edit-customer-notes-container');
+        if(o.customerNotes){
+          notesSectionEdit.style.display='block';
+          notesContainerEdit.innerHTML=`<label>ملاحظات العميل<br><p style="background:var(--blue2);padding:10px;border-radius:8px;margin-top:5px;">${esc(o.customerNotes)}</p></label>`;
+        }else{
+          notesSectionEdit.style.display='none';
         }
         
         go('edit-order');

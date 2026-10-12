@@ -49,6 +49,29 @@
     }
   });
 
+  // Customer notes functionality
+  let currentOrderId = null;
+  
+  window.saveCustomerNotes = async function() {
+    const notes = document.getElementById('customer-notes').value;
+    if (!notes.trim()) {
+      toast('الرجاء كتابة ملاحظات');
+      return;
+    }
+    if (!currentOrderId) {
+      toast('حدث خطأ: لم يتم تحديد الطلب');
+      return;
+    }
+    const { error } = await supabaseClient.from('orders').update({ customernotes: notes }).eq('id', currentOrderId);
+    if (error) {
+      console.error('Error saving customer notes:', error);
+      toast('حدث خطأ أثناء إرسال الملاحظات');
+      return;
+    }
+    toast('تم إرسال الملاحظات بنجاح');
+    document.getElementById('customer-notes').value = '';
+  };
+
   let orders = [];
   async function loadOrders() {
     const { data, error } = await supabaseClient
@@ -69,7 +92,8 @@
       paymentStatus: o.paymentstatus || o.paymentStatus,
       receivedAt: o.receivedat || o.receivedAt,
       deliveryPhoto: o.deliveryphoto || o.deliveryPhoto,
-      driverRating: o.driverrating || o.driverRating
+      driverRating: o.driverrating || o.driverRating,
+      customerNotes: o.customernotes || o.customerNotes
     }));
   }
   
@@ -89,6 +113,11 @@
     ${o.location?`<p class="muted">آخر تحديث يدوي لموقع السائق: ${fmtTime(o.location.at)} · <a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(o.location.lat+','+o.location.lng)}">عرض الموقع على الخريطة</a></p>`:''}
     ${o.status==='تم التوصيل'&&!o.driverRating?`<div class="driver-rating"><h3>قيّم السائق</h3><div class="rating-stars" data-order-id="${esc(o.id)}">${[1,2,3,4,5].map(i=>`<button class="star-btn" data-rating="${i}" aria-label="${i} نجوم">★</button>`).join('')}</div><button class="btn primary" onclick="submitDriverRating('${esc(o.id)}')">إرسال التقييم</button></div>`:''}
     ${o.driverRating?`<div class="driver-rating-display"><h3>تقييم السائق</h3><div class="rating-stars-display">${'★'.repeat(o.driverRating)}${'☆'.repeat(5-o.driverRating)}</div></div>`:''}`;
+    
+    // Show customer notes section
+    currentOrderId = o.id;
+    const notesSection = document.getElementById('customer-notes-section');
+    notesSection.classList.remove('hidden');
   }
   
   // Check if order ID is in URL query

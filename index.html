@@ -62,7 +62,7 @@
           <select id="driver-filter"><option value="">كل السائقين</option><option>ناصر اسلام</option><option>ابراهيم ذكري</option><option>عمرو حرحش</option><option>جمعة السيد</option></select>
           <button class="btn secondary" id="clear-filters">مسح الفلاتر</button>
         </div></div>
-        <div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="select-all"></th><th>رقم الطلب</th><th>العميل</th><th>الهاتف</th><th>العنوان</th><th>الجهاز</th><th>الكمية</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th>التسليم</th><th>التقييم</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="select-all"></th><th>رقم الطلب</th><th>العميل</th><th>الهاتف</th><th>العنوان</th><th>الجهاز</th><th>الكمية</th><th>طريقة الدفع</th><th>السائق</th><th>الحالة</th><th>التاريخ</th><th>التسليم</th><th>التقييم</th><th>ملاحظات العميل</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
         <div class="empty hidden" id="orders-empty">مفيش طلبات مطابقة للبحث.</div>
       </section>
     </section>
@@ -105,6 +105,11 @@
         <section class="panel form-panel" id="driver-rating-section" style="display:none;"><div class="section-title"><h3>تقييم السائق</h3><p>تقييم العميل للسائق بعد التوصيل</p></div>
           <div class="field-grid">
             <div id="edit-driver-rating-container"></div>
+          </div>
+        </section>
+        <section class="panel form-panel" id="customer-notes-section-edit" style="display:none;"><div class="section-title"><h3>ملاحظات العميل</h3><p>ملاحظات كتبها العميل من صفحة التتبع</p></div>
+          <div class="field-grid">
+            <div id="edit-customer-notes-container"></div>
           </div>
         </section>
         <div class="form-footer"><button type="button" class="btn secondary" data-go="sales">إلغاء</button><button class="btn primary" type="submit">حفظ التغييرات <span>←</span></button></div>
