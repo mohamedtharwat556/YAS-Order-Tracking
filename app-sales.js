@@ -50,9 +50,9 @@
     });
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
-      const deliveryPhotoHtml=o.deliveryPhoto?`<img src="${o.deliveryPhoto}" alt="صورة" onclick="window.open('${o.deliveryPhoto}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;margin-right:3px;" title="صورة التسليم">`:'';
+      const deliveryphotoHtml=o.deliveryphoto?`<img src="${o.deliveryphoto}" alt="صورة" onclick="window.open('${o.deliveryphoto}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;margin-right:3px;" title="صورة التسليم">`:'';
       const signatureHtml=o.signature?`<img src="${o.signature}" alt="توقيع" onclick="window.open('${o.signature}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;" title="التوقيع">`:'';
-      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryPhotoHtml}${signatureHtml}</td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
+      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -260,9 +260,9 @@
         const photoContainer=$('#edit-delivery-photo-container');
         const signatureContainer=$('#edit-signature-container');
         
-        if(o.deliveryPhoto||o.signature){
+        if(o.deliveryphoto||o.signature){
           proofSection.style.display='block';
-          photoContainer.innerHTML=o.deliveryPhoto?`<label>صورة التسليم<br><img src="${o.deliveryPhoto}" style="max-width:200px;max-height:200px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="window.open('${o.deliveryPhoto}')"></label>`:'';
+          photoContainer.innerHTML=o.deliveryphoto?`<label>صورة التسليم<br><img src="${o.deliveryphoto}" style="max-width:200px;max-height:200px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="window.open('${o.deliveryphoto}')"></label>`:'';
           signatureContainer.innerHTML=o.signature?`<label>توقيع العميل<br><img src="${o.signature}" style="max-width:200px;max-height:200px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="window.open('${o.signature}')"></label>`:'';
         }else{
           proofSection.style.display='none';
