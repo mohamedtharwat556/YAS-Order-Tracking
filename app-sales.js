@@ -158,11 +158,6 @@
     $('#payment-filter').value='';
     $('#driver-filter').value='';
     renderSales();
-
-  // Start with orders view instead of dashboard after loading orders
-  loadOrders().then(() => {
-    go('sales');
-  });
   });
 
   $('#export-excel').addEventListener('click',()=>{

@@ -18,14 +18,14 @@
   <aside class="sidebar">
     <a class="brand" href="#"><span class="brand-mark">Y</span><span><b>YAS</b><small>Order & Delivery</small></span></a>
     <div class="nav-label">قسم المبيعات</div>
-    <button class="nav-item active" data-view="dashboard"><span>📊</span> لوحة الإحصائيات</button>
-    <button class="nav-item" data-view="sales"><span>▦</span> لوحة الطلبات</button>
+    <button class="nav-item" data-view="dashboard"><span>📊</span> لوحة الإحصائيات</button>
+    <button class="nav-item active" data-view="sales"><span>▦</span> لوحة الطلبات</button>
     <button class="nav-item" data-view="new-order"><span>＋</span> إنشاء طلب جديد</button>
     <div class="sidebar-bottom"><button class="btn secondary full-width" onclick="logout()">تسجيل الخروج</button></div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><div class="eyebrow">YAS / OPERATIONS</div><h1 id="page-title">لوحة إدارة الطلبات</h1></div><div class="top-actions"><button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button><span class="today" id="today"></span></div></header>
-    <section class="view active" id="view-dashboard">
+    <header class="topbar"><div><div class="eyebrow">YAS / OPERATIONS</div><h1 id="page-title">لوحة الطلبات</h1></div><div class="top-actions"><button class="icon-btn" id="dark-mode-toggle" title="الوضع الليلي">🌙</button><span class="today" id="today"></span></div></header>
+    <section class="view" id="view-dashboard">
       <div class="welcome-row"><div><div class="eyebrow">DASHBOARD</div><h2>لوحة الإحصائيات</h2><p>نظرة عامة على أداء المبيعات والتوصيل.</p></div></div>
       <div class="stats">
         <article class="stat-card"><div class="stat-top"><span>إجمالي الطلبات</span><span class="stat-icon blue">▤</span></div><strong id="dash-total">0</strong><small>كل الطلبات المسجلة</small></article>
@@ -43,7 +43,7 @@
         <div id="report-result" class="report-result hidden"></div>
       </section>
     </section>
-    <section class="view" id="view-sales">
+    <section class="view active" id="view-sales">
       <div class="welcome-row"><div><h2>أهلًا بيك 👋</h2><p>تابع الطلبات وحالة التوصيل من مكان واحد.</p></div><button class="btn primary" data-go="new-order">＋ إنشاء طلب جديد</button></div>
       <div class="stats">
         <article class="stat-card"><div class="stat-top"><span>إجمالي الطلبات</span><span class="stat-icon blue">▤</span></div><strong id="stat-total">0</strong><small>كل الطلبات المسجلة</small></article>
