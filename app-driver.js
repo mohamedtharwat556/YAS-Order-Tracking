@@ -21,6 +21,7 @@
 
   let orders = [];
   let driverName = null;
+  let showArchived = false;
 
   console.log('Checking auth...');
 
@@ -46,6 +47,21 @@
 
   function toast(message, type = 'success'){const el=$('#toast');el.textContent=message;el.className='toast show ' + type;setTimeout(()=>el.classList.remove('show'),3000);}
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};return `<span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span>`;}
+
+  $('#toggle-archived-orders').addEventListener('click', () => {
+    showArchived = !showArchived;
+    const btn = $('#toggle-archived-orders');
+    if (showArchived) {
+      btn.textContent = 'عرض الطلبات النشطة';
+      btn.classList.add('active');
+      toast('عرض الأرشيف', 'success');
+    } else {
+      btn.textContent = 'عرض الأرشيف';
+      btn.classList.remove('active');
+      toast('عرض الطلبات النشطة', 'success');
+    }
+    renderDriverOrders();
+  });
 
   function renderDriver(){
     const auth = JSON.parse(localStorage.getItem('yas_auth') || '{}');
@@ -73,15 +89,16 @@
     console.log('All orders:', orders);
     console.log('Orders count:', orders.length);
 
-    const list=orders.filter(o=>o.driver === driverName);
+    const list=orders.filter(o=>o.driver === driverName && (showArchived ? o.status === 'تم التوصيل' : o.status !== 'تم التوصيل'));
 
     console.log('Filtered orders:', list);
     console.log('Filtered orders count:', list.length);
 
-    // Update stats
-    $('#driver-total').textContent = list.length;
-    $('#driver-pending').textContent = list.filter(o => ['تم طلبه', 'تم الشحن', 'خرج للتوصيل'].includes(o.status)).length;
-    $('#driver-completed').textContent = list.filter(o => o.status === 'تم التوصيل').length;
+    // Update stats (always show total stats regardless of archive view)
+    const allDriverOrders = orders.filter(o => o.driver === driverName);
+    $('#driver-total').textContent = allDriverOrders.length;
+    $('#driver-pending').textContent = allDriverOrders.filter(o => ['تم طلبه', 'تم الشحن', 'خرج للتوصيل'].includes(o.status)).length;
+    $('#driver-completed').textContent = allDriverOrders.filter(o => o.status === 'تم التوصيل').length;
 
     console.log('Stats updated - Total:', list.length, 'Pending:', $('#driver-pending').textContent, 'Completed:', $('#driver-completed').textContent);
 
@@ -91,7 +108,7 @@
 
     console.log('Dropdowns updated');
 
-    const ordersHtml = list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div><div class="driver-actions"><select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button>${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryphoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryphoto}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.deliveryphoto}')"></div>`:''}${o.signature?`<div style="margin-top:10px;"><small>توقيع العميل:</small><br><img src="${o.signature}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.signature}')"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
+    const ordersHtml = list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div><div class="driver-actions">${!showArchived ? `<select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button><button class="btn secondary" data-archive-order="${esc(o.id)}" style="background:#8b5cf6;">أرشفة</button>` : `<button class="btn primary" data-restore-order="${esc(o.id)}" style="background:#10b981;">استعادة</button>`}${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryphoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryphoto}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.deliveryphoto}')"></div>`:''}${o.signature?`<div style="margin-top:10px;"><small>توقيع العميل:</small><br><img src="${o.signature}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.signature}')"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
 
     console.log('Orders HTML generated, length:', ordersHtml.length);
     $('#driver-orders').innerHTML = ordersHtml;
@@ -115,6 +132,73 @@
         .from('orders')
         .update({ status: o.status, history: o.history })
         .eq('id', id);
+
+      if(error){
+        console.error('Error updating status:',error);
+        toast('حدث خطأ أثناء تحديث الحالة','error');
+        return;
+      }
+
+      await loadOrders();
+      renderDriverOrders();
+      toast('تم تحديث الحالة بنجاح','success');
+    }
+
+    const archiveBtn=e.target.closest('[data-archive-order]');
+    if(archiveBtn){
+      const id=archiveBtn.dataset.archiveOrder;
+      if(!confirm('هل تريد أرشفة هذا الطلب؟ سيختفي من القائمة النشطة.')) return;
+
+      const o=orders.find(x=>x.id===id);
+      if(!o) return;
+
+      o.status='تم التوصيل';
+      o.history=o.history||[];
+      o.history.push({status:'تم التوصيل',at:new Date().toISOString(),note:'تمت الأرشفة بواسطة السائق'});
+
+      const { error } = await supabaseClient
+        .from('orders')
+        .update({ status: o.status, history: o.history })
+        .eq('id', id);
+
+      if(error){
+        console.error('Error archiving order:',error);
+        toast('حدث خطأ أثناء أرشفة الطلب','error');
+        return;
+      }
+
+      await loadOrders();
+      renderDriverOrders();
+      toast('تم أرشفة الطلب بنجاح','success');
+    }
+
+    const restoreBtn=e.target.closest('[data-restore-order]');
+    if(restoreBtn){
+      const id=restoreBtn.dataset.restoreOrder;
+      if(!confirm('هل تريد استعادة هذا الطلب من الأرشيف؟')) return;
+
+      const o=orders.find(x=>x.id===id);
+      if(!o) return;
+
+      o.status='خرج للتوصيل';
+      o.history=o.history||[];
+      o.history.push({status:'خرج للتوصيل',at:new Date().toISOString(),note:'تمت الاستعادة بواسطة السائق'});
+
+      const { error } = await supabaseClient
+        .from('orders')
+        .update({ status: o.status, history: o.history })
+        .eq('id', id);
+
+      if(error){
+        console.error('Error restoring order:',error);
+        toast('حدث خطأ أثناء استعادة الطلب','error');
+        return;
+      }
+
+      await loadOrders();
+      renderDriverOrders();
+      toast('تم استعادة الطلب بنجاح','success');
+    }
 
       if (error) {
         console.error('Error updating order:', error);

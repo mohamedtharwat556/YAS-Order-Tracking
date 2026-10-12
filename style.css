@@ -476,7 +476,8 @@ textarea:focus-visible {
 }
 
 /* Completed Only Toggle Button */
-#toggle-completed-only.active {
+#toggle-completed-only.active,
+#toggle-archived-orders.active {
   background: var(--green);
   color: white;
 }
