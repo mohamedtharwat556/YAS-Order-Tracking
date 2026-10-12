@@ -74,7 +74,7 @@
       });
     }
   });
-  function go(view){$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${view}`));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));const titles={dashboard:'لوحة الإحصائيات',sales:'لوحة إدارة الطلبات','new-order':'إنشاء طلب جديد','edit-order':'تعديل الطلب'};$('#page-title').textContent=titles[view]||'YAS';if(view==='sales')renderSales();if(view==='new-order')setReceivedAt();if(view==='dashboard')renderDashboard();}
+  function go(view){$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${view}`));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));const titles={dashboard:'لوحة الإحصائيات',sales:'لوحة إدارة الطلبات',archive:'أرشيف تم التوصيل',new-order:'إنشاء طلب جديد',edit-order:'تعديل الطلب'};$('#page-title').textContent=titles[view]||'YAS';if(view==='sales')renderSales();if(view==='archive')renderArchive();if(view==='new-order')setReceivedAt();if(view==='dashboard')renderDashboard();}
   function setReceivedAt(){const el=$('#received-at');if(el&&!el.value){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());el.value=d.toISOString().slice(0,16);}}
   function renderSales(){
     $('#stat-total').textContent=orders.length;
@@ -120,6 +120,16 @@
       return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit-order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete-order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy-link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
+  }
+
+  function renderArchive(){
+    const archivedOrders=orders.filter(o=>o.status==='تم التوصيل');
+    $('#archive-table').innerHTML=archivedOrders.map(o=>{
+      const ratingHtml=o.driverRating?`<span style="color:#f59e0b;font-size:16px;">${'★'.repeat(o.driverRating)}</span>`:'-';
+      const notesHtml=o.customerNotes?`<span style="color:var(--muted);font-size:12px;max-width:100px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.customerNotes)}">${esc(o.customerNotes)}</span>`:'-';
+      return `<tr><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.driver||'غير محدد')}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-restore-order="${esc(o.id)}" title="استعادة"><i data-lucide="rotate-ccw"></i></button></td></tr>`;
+    }).join('');
+    $('#archive-empty').classList.toggle('hidden',archivedOrders.length>0);
   }
 
   function renderDashboard(){
@@ -288,6 +298,11 @@
         o.history.push({status:selectedStatus,at:new Date().toISOString()});
         const { error }=await supabaseClient.from('orders').update({status:o.status,history:o.history}).eq('id',id);
         if(error) console.error('Error updating order:',error);
+        
+        // If status is "تم التوصيل", show archive notification
+        if(selectedStatus==='تم التوصيل'&&!error){
+          toast(`تم نقل الطلب ${id} إلى الأرشيف`, 'success');
+        }
       }
     });
     await loadOrders();
@@ -297,6 +312,34 @@
 
   $('#select-all').addEventListener('change',e=>{
     document.querySelectorAll('.order-checkbox').forEach(cb=>cb.checked=e.target.checked);
+  });
+  
+  // Archive restore functionality
+  $('#archive-table').addEventListener('click',async e=>{
+    const b=e.target.closest('[data-restore-order]');
+    if(b){
+      const id=b.dataset.restoreOrder;
+      if(!confirm('هل تريد استعادة هذا الطلب من الأرشيف؟')) return;
+      
+      const o=orders.find(x=>x.id===id);
+      if(!o) return;
+      
+      const { error }=await supabaseClient.from('orders').update({status:'خرج للتوصيل'}).eq('id',id);
+      if(error){
+        console.error('Error restoring order:',error);
+        toast('حدث خطأ أثناء استعادة الطلب', 'error');
+        return;
+      }
+      
+      await loadOrders();
+      renderArchive();
+      toast('تم استعادة الطلب بنجاح', 'success');
+    }
+  });
+  
+  $('#archive-clear-filters').addEventListener('click',()=>{
+    // Currently no filters in archive, but can be added later
+    toast('لا توجد فلاتر لمسحها', 'warning');
   });
   
   loadOrders();
