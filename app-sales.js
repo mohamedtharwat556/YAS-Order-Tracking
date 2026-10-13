@@ -15,13 +15,24 @@
 
   let orders = [];
   async function loadOrders() {
+    // Show loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = '<div class="spinner"></div>';
+    document.body.appendChild(loadingOverlay);
+
     const { data, error } = await supabaseClient
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
+
+    // Remove loading overlay
+    loadingOverlay.remove();
+
     if (error) {
       console.error('Error loading orders:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
+      toast('حدث خطأ أثناء تحميل الطلبات. يرجى المحاولة مرة أخرى.', 'error');
       return;
     }
     // Normalize data from lowercase to camelCase for display
@@ -40,7 +51,17 @@
   }
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
-  function toast(message, type = 'success'){const el=$('#toast');el.textContent=message;el.className='toast show ' + type;setTimeout(()=>el.classList.remove('show'),3000);}
+  function toast(message, type = 'success'){
+    const el=$('#toast');
+    el.textContent=message;
+    el.className='toast show ' + type;
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'polite');
+
+    // Better duration based on message length
+    const duration = Math.max(3000, message.length * 50);
+    setTimeout(()=>el.classList.remove('show'), duration);
+  }
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};const carPositions={'تم طلبه':'0%','تم الشحن':'25%','خرج للتوصيل':'50%','تم التوصيل':'75%','تعذر التسليم':'100%'};return `<div class="status-container"><span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span><div class="status-track"><div class="status-car" style="left: ${carPositions[status]||'0%'}"></div></div></div>`;}
   
   // Initialize Lucide icons
@@ -125,8 +146,8 @@
     });
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
-      const deliveryphotoHtml=o.deliveryphoto?`<img src="${o.deliveryphoto}" alt="صورة" onclick="showImageModal('${o.deliveryphoto}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;margin-right:3px;" title="صورة التسليم">`:'';
-      const signatureHtml=o.signature?`<img src="${o.signature}" alt="توقيع" onclick="showImageModal('${o.signature}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;" title="التوقيع">`:'';
+      const deliveryphotoHtml=o.deliveryphoto?`<img src="${o.deliveryphoto}" alt="صورة التسليم" loading="lazy" onclick="showImageModal('${o.deliveryphoto}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;margin-right:3px;" title="صورة التسليم">`:'';
+      const signatureHtml=o.signature?`<img src="${o.signature}" alt="توقيع العميل" loading="lazy" onclick="showImageModal('${o.signature}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;" title="التوقيع">`:'';
       const ratingHtml=o.driverRating?`<span style="color:#f59e0b;font-size:16px;">${'★'.repeat(o.driverRating)}</span>`:'-';
       const notesHtml=o.customerNotes?`<span style="color:var(--muted);font-size:12px;max-width:100px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.customerNotes)}">${esc(o.customerNotes)}</span>`:'-';
       return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit_order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete_order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy_link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;

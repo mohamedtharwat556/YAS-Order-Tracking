@@ -29,13 +29,24 @@
     console.log('loadOrders called');
     console.log('supabaseClient:', supabaseClient);
 
+    // Show loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = '<div class="spinner"></div>';
+    document.body.appendChild(loadingOverlay);
+
     const { data, error } = await supabaseClient
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
+
+    // Remove loading overlay
+    loadingOverlay.remove();
+
     if (error) {
       console.error('Error loading orders:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
+      toast('حدث خطأ أثناء تحميل الطلبات. يرجى المحاولة مرة أخرى.', 'error');
       return;
     }
     orders = data || [];
@@ -45,7 +56,17 @@
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
 
-  function toast(message, type = 'success'){const el=$('#toast');el.textContent=message;el.className='toast show ' + type;setTimeout(()=>el.classList.remove('show'),3000);}
+  function toast(message, type = 'success'){
+    const el=$('#toast');
+    el.textContent=message;
+    el.className='toast show ' + type;
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'polite');
+
+    // Better duration based on message length
+    const duration = Math.max(3000, message.length * 50);
+    setTimeout(()=>el.classList.remove('show'), duration);
+  }
   function statusBadge(status){const statusClass={'تم طلبه':'s-new','تم الشحن':'s-shipped','خرج للتوصيل':'s-out','تم التوصيل':'s-done','تعذر التسليم':'s-failed'};return `<span class="status ${statusClass[status]||'s-new'}">${esc(status)}</span>`;}
 
   $('#toggle-archived-orders').addEventListener('click', () => {
@@ -108,7 +129,7 @@
 
     console.log('Dropdowns updated');
 
-    const ordersHtml = list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div>${o.driverRating?`<div style="margin-bottom:10px;padding:8px;background:#f0fdf4;border-radius:6px;"><small>تقييم العميل:</small><br><span style="color:#f59e0b;font-size:18px;">${'★'.repeat(o.driverRating)}${'☆'.repeat(5-o.driverRating)}</span></div>`:''}<div class="driver-actions">${!showArchived ? `<select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button><button class="btn secondary" data-archive-order="${esc(o.id)}" style="background:#8b5cf6;">أرشفة</button>` : `<button class="btn primary" data-restore-order="${esc(o.id)}" style="background:#10b981;">استعادة</button>`}${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryphoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryphoto}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.deliveryphoto}')"></div>`:''}${o.signature?`<div style="margin-top:10px;"><small>توقيع العميل:</small><br><img src="${o.signature}" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.signature}')"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
+    const ordersHtml = list.length?list.map(o=>`<article class="driver-card"><div class="driver-card-top"><div><span class="order-code">${esc(o.id)}</span><h3>${esc(o.customer)}</h3><p>${esc(o.devicetype)} · ${esc(o.brand)}</p></div>${statusBadge(o.status)}</div><div class="driver-meta"><span>☎ ${esc(o.phone)}</span><span>⌖ ${esc(o.address)}</span><span>الدفع: ${esc(o.paymentmethod)}</span></div>${o.driverRating?`<div style="margin-bottom:10px;padding:8px;background:#f0fdf4;border-radius:6px;"><small>تقييم العميل:</small><br><span style="color:#f59e0b;font-size:18px;">${'★'.repeat(o.driverRating)}${'☆'.repeat(5-o.driverRating)}</span></div>`:''}<div class="driver-actions">${!showArchived ? `<select data-status-for="${esc(o.id)}" aria-label="تغيير الحالة">${['تم طلبه','تم الشحن','خرج للتوصيل','تم التوصيل','تعذر التسليم'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select><button class="btn primary" data-update-status="${esc(o.id)}">تحديث الحالة</button><button class="btn secondary" data-archive-order="${esc(o.id)}" style="background:#8b5cf6;">أرشفة</button>` : `<button class="btn primary" data-restore-order="${esc(o.id)}" style="background:#10b981;">استعادة</button>`}${o.maplink?`<a class="btn secondary" href="${esc(o.maplink)}" target="_blank" rel="noopener">فتح الخريطة</a>`:`<button class="btn secondary" data-address="${esc(o.id)}">عرض العنوان</button>`}</div><p class="subtext">آخر موقع للسائق: ${o.location?`${esc(o.location.lat)}, ${esc(o.location.lng)} · ${fmtTime(o.location.at)}`:'لم يتم تسجيل موقع بعد'}</p>${o.deliveryphoto?`<div style="margin-top:10px;"><small>صورة التسليم:</small><br><img src="${o.deliveryphoto}" alt="صورة التسليم" loading="lazy" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.deliveryphoto}')"></div>`:''}${o.signature?`<div style="margin-top:10px;"><small>توقيع العميل:</small><br><img src="${o.signature}" alt="توقيع العميل" loading="lazy" style="max-width:100px;max-height:100px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="showImageModal('${o.signature}')"></div>`:''}</article>`).join(''):'<div class="panel">لا توجد طلبات مسندة لك حتى الآن.</div>';
 
     console.log('Orders HTML generated, length:', ordersHtml.length);
     $('#driver-orders').innerHTML = ordersHtml;
