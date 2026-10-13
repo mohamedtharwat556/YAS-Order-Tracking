@@ -22,8 +22,35 @@
   let orders = [];
   let driverName = null;
   let showArchived = false;
+  let currentDriverLocation = null;
 
   console.log('Checking auth...');
+
+  // Calculate distance between two coordinates (Haversine formula)
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in km
+  }
+
+  // Calculate estimated time of arrival (assuming 40 km/h average speed)
+  function calculateETA(distance) {
+    const avgSpeed = 40; // km/h
+    const timeHours = distance / avgSpeed;
+    const timeMinutes = Math.round(timeHours * 60);
+    if (timeMinutes < 60) {
+      return `${timeMinutes} دقيقة`;
+    } else {
+      const hours = Math.floor(timeMinutes / 60);
+      const mins = timeMinutes % 60;
+      return `${hours} ساعة ${mins > 0 ? mins + ' دقيقة' : ''}`;
+    }
+  }
 
   async function loadOrders() {
     console.log('loadOrders called');
@@ -229,6 +256,43 @@
   });
   
   let watchId=null;
+  let map = null;
+  let driverMarker = null;
+
+  // Initialize map
+  function initMap() {
+    if (typeof L !== 'undefined' && document.getElementById('map')) {
+      map = L.map('map').setView([30.0444, 31.2357], 13); // Default to Cairo
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+    }
+  }
+
+  // Update map with driver location
+  function updateMap(lat, lng) {
+    if (!map) return;
+
+    const latLng = [lat, lng];
+
+    if (driverMarker) {
+      driverMarker.setLatLng(latLng);
+    } else {
+      driverMarker = L.marker(latLng).addTo(map)
+        .bindPopup('موقعك الحالي')
+        .openPopup();
+    }
+
+    map.setView(latLng, 15);
+  }
+
+  // Initialize map when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMap);
+  } else {
+    initMap();
+  }
 
   $('#update-location').addEventListener('click',async ()=>{
     const output=$('#location-result');
@@ -241,6 +305,12 @@
     navigator.geolocation.getCurrentPosition(async pos=>{
       const loc={lat:pos.coords.latitude.toFixed(5),lng:pos.coords.longitude.toFixed(5),at:new Date().toISOString()};
       const driverOrders = orders.filter(o=>o.driver === driverName);
+
+      // Update map
+      updateMap(parseFloat(loc.lat), parseFloat(loc.lng));
+
+      // Store current driver location
+      currentDriverLocation = { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) };
 
       for (const o of driverOrders) {
         const { error } = await supabaseClient
@@ -255,7 +325,7 @@
       toast('تم تسجيل الموقع على الطلبات المسندة');
     },err=>{
       output.textContent=err.code===1?'لم تسمح بالوصول للموقع. فعّل إذن الموقع وحاول تاني.':'تعذر تحديد الموقع. تأكد من إعدادات الجهاز والاتصال.';
-    },{enableHighAccuracy:true,timeout:12000});
+    },{enableHighAccuracy:true,timeout:30000,maximumAge:0});
   });
 
   $('#auto-location').addEventListener('change',e=>{
@@ -272,6 +342,12 @@
         const loc={lat:pos.coords.latitude.toFixed(5),lng:pos.coords.longitude.toFixed(5),at:new Date().toISOString()};
         const driverOrders = orders.filter(o=>o.driver === driverName);
 
+        // Update map
+        updateMap(parseFloat(loc.lat), parseFloat(loc.lng));
+
+        // Store current driver location
+        currentDriverLocation = { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) };
+
         for (const o of driverOrders) {
           const { error } = await supabaseClient
             .from('orders')
@@ -285,8 +361,8 @@
       },err=>{
         console.error('Geolocation error:', err);
         output.textContent='خطأ في التتبع التلقائي';
-      },{enableHighAccuracy:true,timeout:30000,maximumAge:0});
-      toast('تم تفعيل التتبع التلقائي (كل 30 ثانية)');
+      },{enableHighAccuracy:true,timeout:30000,maximumAge:0,desiredAccuracy:10});
+      toast('تم تفعيل التتبع التلقائي (عالي الدقة)');
     }else{
       if(watchId){
         navigator.geolocation.clearWatch(watchId);
