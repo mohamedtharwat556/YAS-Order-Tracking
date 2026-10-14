@@ -120,6 +120,7 @@
     // Advanced filters
     const dateFrom=$('#filter-date-from').value;
     const dateTo=$('#filter-date-to').value;
+    const phoneFilter=$('#filter-phone').value;
     const multipleStatus=$('#filter-multiple-status').selectedOptions;
     const multipleStatusValues=Array.from(multipleStatus).map(opt=>opt.value);
     
@@ -140,9 +141,11 @@
         if(dateTo) matchesDateRange=matchesDateRange&&orderDate<=new Date(dateTo+'T23:59:59');
       }
       
+      const matchesPhone=!phoneFilter||String(o.phone||'').includes(phoneFilter);
+      
       const matchesMultipleStatus=multipleStatusValues.length===0||multipleStatusValues.includes(o.status);
       
-      return matchesSearch&&matchesStatus&&matchesPayment&&matchesDriver&&matchesDateRange&&matchesMultipleStatus;
+      return matchesSearch&&matchesStatus&&matchesPayment&&matchesDriver&&matchesDateRange&&matchesPhone&&matchesMultipleStatus;
     });
     $('#orders-table').innerHTML=filtered.map(o=>{
       const trackUrl=`${window.location.origin}/track.html?order=${o.id}`;
@@ -150,7 +153,9 @@
       const signatureHtml=o.signature?`<img src="${o.signature}" alt="توقيع العميل" loading="lazy" onclick="showImageModal('${o.signature}')" style="width:30px;height:30px;border-radius:4px;cursor:pointer;" title="التوقيع">`:'';
       const ratingHtml=o.driverRating?`<span style="color:#f59e0b;font-size:16px;">${'★'.repeat(o.driverRating)}</span>`:'-';
       const notesHtml=o.customerNotes?`<span style="color:var(--muted);font-size:12px;max-width:100px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.customerNotes)}">${esc(o.customerNotes)}</span>`:'-';
-      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit_order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete_order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy_link="${trackUrl}" title="نسخ رابط">📋</button></td></tr>`;
+      const whatsappUrl=`https://wa.me/2${o.phone.substring(1)}?text=${encodeURIComponent(`مرحباً ${o.customer}، طلبك رقم ${o.id} في الطريق. الحالة: ${o.status}`)}`;
+      const emailUrl=`mailto:${o.phone}@example.com?subject=طلب ${o.id}&body=تفاصيل طلبك ${o.id}`;
+      return `<tr><td><input type="checkbox" class="order-checkbox" data-id="${esc(o.id)}"></td><td><span class="order-code">${esc(o.id)}</span></td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td><span style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.address)}">${esc(o.address)}</span></td><td>${esc(o.devicetype)}<br><small>${esc(o.brand)}</small></td><td>${o.quantity}</td><td>${esc(o.paymentmethod)}<br><small>${esc(o.paymentstatus)}</small></td><td>${esc(o.driver||'غير محدد')}</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.receivedat)}<br><small>${fmtTime(o.receivedat)}</small></td><td>${deliveryphotoHtml}${signatureHtml}</td><td>${ratingHtml}</td><td>${notesHtml}</td><td><button class="icon-btn" data-edit_order="${esc(o.id)}" title="تعديل">✏️</button><button class="icon-btn" data-delete_order="${esc(o.id)}" title="حذف" style="color: var(--red);">🗑️</button><button class="icon-btn" data-copy_link="${trackUrl}" title="نسخ رابط">📋</button><a class="icon-btn" href="${whatsappUrl}" target="_blank" title="واتساب" style="color: #25D366;">📱</a><a class="icon-btn" href="${emailUrl}" title="إيميل" style="color: #EA4335;">✉️</a></td></tr>`;
     }).join('');
     $('#orders-empty').classList.toggle('hidden',filtered.length>0);
   }
@@ -242,6 +247,7 @@
   $('#driver-filter').addEventListener('change',renderSales);
   $('#filter-date-from').addEventListener('change',renderSales);
   $('#filter-date-to').addEventListener('change',renderSales);
+  $('#filter-phone').addEventListener('input',renderSales);
   $('#filter-multiple-status').addEventListener('change',renderSales);
   
   // Toggle completed orders only
@@ -259,6 +265,7 @@
     $('#driver-filter').value='';
     $('#filter-date-from').value='';
     $('#filter-date-to').value='';
+    $('#filter-phone').value='';
     $('#filter-multiple-status').selectedOptions.forEach(opt=>opt.selected=false);
     renderSales();
     toast('تم مسح جميع الفلاتر', 'success');
@@ -304,6 +311,68 @@
     XLSX.utils.book_append_sheet(wb,ws,'الطلبات');
     XLSX.writeFile(wb,'YAS-Orders.xlsx');
     toast('تم تصدير البيانات بنجاح');
+  });
+
+  // Export to JSON
+  $('#export-json').addEventListener('click',()=>{
+    if(orders.length===0){
+      toast('لا توجد طلبات للتصدير', 'warning');
+      return;
+    }
+
+    const exportData = JSON.stringify(orders, null, 2);
+    const blob = new Blob([exportData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `YAS-Orders-Backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('تم تصدير النسخة الاحتياطية بنجاح');
+  });
+
+  // Import from JSON
+  $('#import-json').addEventListener('click',()=>{
+    $('#import-file').click();
+  });
+
+  $('#import-file').addEventListener('change',async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const importedData = JSON.parse(event.target.result);
+        
+        if(!Array.isArray(importedData)){
+          toast('الملف غير صالح: يجب أن يكون مصفوفة طلبات', 'error');
+          return;
+        }
+
+        if(!confirm(`استيراد ${importedData.length} طلب؟ سيتم إضافتها إلى الطلبات الحالية.`)) return;
+
+        for(const order of importedData){
+          const { error } = await supabaseClient
+            .from('orders')
+            .upsert(order);
+          
+          if(error){
+            console.error('Error importing order:', error);
+          }
+        }
+
+        await loadOrders();
+        toast(`تم استيراد ${importedData.length} طلب بنجاح`, 'success');
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        toast('خطأ في قراءة الملف: تأكد أنه ملف JSON صالح', 'error');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset file input
   });
 
   $('#bulk-update').addEventListener('click',async ()=>{
